@@ -3,6 +3,8 @@
 namespace Scheduler\JobRunner;
 
 use Scheduler\SchedulerInterface;
+use DateTimeInterface;
+use Scheduler\Action\Report;
 
 /**
  * Class TaskRunner
@@ -11,8 +13,20 @@ use Scheduler\SchedulerInterface;
  */
 class JobRunner implements JobRunnerInterface
 {
-    public function run(SchedulerInterface $scheduler)
+    /**
+     * @inheritdoc
+     */
+    public function run(SchedulerInterface $scheduler, DateTimeInterface $from, DateTimeInterface $to = null, bool $inc = true)
     {
-        // TODO: Implement run() method.
+        $actionsIterator = $scheduler->getIterator($from, $to, $inc);
+        $reports = [];
+        foreach ($actionsIterator as $action) {
+            try {
+                $reports[] = new Report($action, $action());
+            } catch (\Exception $e) {
+                $reports[] = new Report($action, $e, Report::TYPE_ERROR);
+            }
+        }
+        return $reports;
     }
 }

@@ -7,23 +7,15 @@
 [![Quality Score][ico-code-quality]][link-code-quality]
 [![Total Downloads][ico-downloads]][link-downloads]
 
-This is where your description should go. Try and limit it to a paragraph or two, and maybe throw in a mention of what
-PSRs you support to avoid any confusion with users and contributors.
+Job scheduler is a PHP library for scheduling time-based repetitive actions.
+It uses ([RRULE](https://tools.ietf.org/html/rfc5545)) to configure time and recurrence rule of each job.  
 
-## Structure
+## Goals
 
-If any of the following are applicable to your project, then the directory structure should follow industry best practises by being named the following.
+Sometimes amount of cron jobs becomes too large. 
+The main goal is reduce amount of cron jobs to only one.  
 
-```
-bin/        
-config/
-src/
-tests/
-vendor/
-```
-
-
-## Install
+## Installation
 
 Via Composer
 
@@ -33,14 +25,32 @@ $ composer require hutnikau/job-scheduler
 
 ## Usage
 
+### Create a job
 ``` php
-$skeleton = new League\Skeleton();
-echo $skeleton->echoPhrase('Hello, League!');
+$executionTime = new \DateTime('2017-12-12 20:00:00');
+//run monthly, at 20:00:00, 5 times
+$rule          = new \Recurr\Rule('FREQ=MONTHLY;COUNT=5', $executionTime);
+$job           = new \Scheduler\Job\Job($rule, function () {
+    //do something
+});
 ```
 
-## Change log
+###Schedule a job
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+```php
+$scheduler = new \Scheduler\Scheduler([
+    $job,
+    //more jobs here
+]);
+
+//also you may add jobs by \Scheduler\Scheduler::addJob($job)
+$scheduler->addJob($anotherJob);
+```
+
+### run scheduled jobs 
+
+
+
 
 ## Testing
 
@@ -48,18 +58,13 @@ Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed re
 $ composer test
 ```
 
-## Contributing
-
-Please see [CONTRIBUTING](CONTRIBUTING.md) and [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md) for details.
-
 ## Security
 
-If you discover any security related issues, please email :author_email instead of using the issue tracker.
+If you discover any security related issues, please email goodnickoff@gmail.com instead of using the issue tracker.
 
 ## Credits
 
-- [:author_name][link-author]
-- [All Contributors][link-contributors]
+- This library was created by [Aleh Hutnikau](https://github.com/hutnikau)  
 
 ## License
 
@@ -72,10 +77,9 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 [ico-code-quality]: https://img.shields.io/scrutinizer/g/:vendor/:package_name.svg?style=flat-square
 [ico-downloads]: https://img.shields.io/packagist/dt/:vendor/:package_name.svg?style=flat-square
 
-[link-packagist]: https://packagist.org/packages/:vendor/:package_name
-[link-travis]: https://travis-ci.org/:vendor/:package_name
-[link-scrutinizer]: https://scrutinizer-ci.com/g/:vendor/:package_name/code-structure
-[link-code-quality]: https://scrutinizer-ci.com/g/:vendor/:package_name
-[link-downloads]: https://packagist.org/packages/:vendor/:package_name
-[link-author]: https://github.com/:author_username
-[link-contributors]: ../../contributors
+[link-packagist]: https://packagist.org/packages/hutnikau/:package_name
+[link-travis]: https://travis-ci.org/hutnikau/:package_name
+[link-scrutinizer]: https://scrutinizer-ci.com/g/hutnikau/:package_name/code-structure
+[link-code-quality]: https://scrutinizer-ci.com/g/hutnikau/:package_name
+[link-downloads]: https://packagist.org/packages/hutnikau/:package_name
+[link-author]: https://github.com/hutnikau

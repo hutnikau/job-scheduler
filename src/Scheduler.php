@@ -35,13 +35,22 @@ class Scheduler implements SchedulerInterface
      */
     public function getIterator(DateTimeInterface $from, DateTimeInterface $to = null, bool $inc = true): \Iterator
     {
-        $iterator = new \AppendIterator();
+        $iterator = new \ArrayIterator();
         if ($to === null) {
             $to = new \DateTime('now', $from->getTimezone());
         }
         foreach ($this->jobs as $job) {
-            $iterator->append(new ActionIterator($job, $from, $to, $inc));
+            $actionIterator = new ActionIterator($job, $from, $to, $inc);
+            foreach ($actionIterator as $action) {
+                $iterator->append($action);
+            }
         }
+        $iterator->uasort(function ($a, $b) {
+            if ($a->getTime()->getTimestamp() == $b->getTime()->getTimestamp()) {
+                return 0;
+            }
+            return ($a->getTime()->getTimestamp() < $b->getTime()->getTimestamp()) ? -1 : 1;
+        });
         return $iterator;
     }
 

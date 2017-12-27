@@ -133,6 +133,20 @@ class SchedulerTest extends TestCase
                     new CallableAction($secondlyJob, DateTime::createFromFormat('U', $time)),
                 ]
             ],
+            //check if actions ordered by start time
+            [
+                [DateTime::createFromFormat('U', $time-2), DateTime::createFromFormat('U', $time), true],
+                [
+                    $thirdJob = $this->getJob(DateTime::createFromFormat('U', $time)),
+                    $firstJob = $this->getJob(DateTime::createFromFormat('U', $time-1)),
+                    $secondJob = $this->getJob(DateTime::createFromFormat('U', $time-1)),
+                ],
+                [
+                    new CallableAction($firstJob, DateTime::createFromFormat('U', $time-1)),
+                    new CallableAction($secondJob, DateTime::createFromFormat('U', $time-1)),
+                    new CallableAction($thirdJob, DateTime::createFromFormat('U', $time)),
+                ]
+            ],
         ];
     }
 
