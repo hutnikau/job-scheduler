@@ -1,0 +1,13 @@
+language: php
+
+php:
+  - 7.0
+  - 7.1
+  - 7.2
+  - nightly
+
+before_script:
+    - composer self-update
+    - composer update nothing
+    - composer --prefer-source --dev install
+script: ./vendor/bin/phpunit --coverage-text
