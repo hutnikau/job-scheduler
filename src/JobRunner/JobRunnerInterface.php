@@ -1,14 +1,14 @@
 <?php
 
-namespace Scheduler\TaskRunner;
+namespace Scheduler\JobRunner;
 
 use Scheduler\SchedulerInterface;
 
 /**
- * Interface TaskRunner
+ * Interface JobRunnerInterface
  * @package Scheduler\TaskRunner
  */
-interface TaskRunnerInterface
+interface JobRunnerInterface
 {
     /**
      * @param SchedulerInterface $scheduler

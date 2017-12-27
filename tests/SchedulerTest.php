@@ -1,10 +1,11 @@
 <?php
 
-namespace SchedulerTests\Task;
+namespace SchedulerTests;
 
 use PHPUnit\Framework\TestCase;
 use Scheduler\Scheduler;
-use Scheduler\Task\CallableTask;
+use Scheduler\Action\CallableAction;
+use Scheduler\Job\Job;
 use Recurr\Rule;
 use DateTime;
 
@@ -25,7 +26,7 @@ class SchedulerTest extends TestCase
         //all tasks should be returned as start time is before the earliest task
         $iterator = call_user_func_array([$scheduler, 'getIterator'], $params);
         $this->assertTrue($iterator instanceof \Iterator);
-        $resultArray = iterator_to_array($iterator);
+        $resultArray = iterator_to_array($iterator, false);
         $this->assertEquals($expected, $resultArray);
     }
 
@@ -33,13 +34,13 @@ class SchedulerTest extends TestCase
     {
         $time = time();
         $scheduler = new Scheduler([]);
-        $iterator = $scheduler->getIterator(DateTime::createFromFormat('U', $time - 2));
+        $iterator = $scheduler->getIterator(DateTime::createFromFormat('U', $time-2));
         $resultArray = iterator_to_array($iterator);
         $this->assertTrue(empty($resultArray));
 
-        $scheduler->addTask($this->getTask($time - 1));
+        $scheduler->addJob($this->getJob(DateTime::createFromFormat('U', $time-1)));
 
-        $iterator = $scheduler->getIterator(DateTime::createFromFormat('U', $time - 2));
+        $iterator = $scheduler->getIterator(DateTime::createFromFormat('U', $time-2));
         $resultArray = iterator_to_array($iterator);
         $this->assertEquals(count($resultArray), 1);
     }
@@ -47,78 +48,104 @@ class SchedulerTest extends TestCase
     public function getIteratorProvider()
     {
         $time = time();
-        $tasks = [
-            $this->getTask($time-10),
-            $this->getTask($time-1),
-            $this->getTask($time),
-            $this->getTask($time+10),
+        $timezone = 'UTC';
+        $times = [
+            DateTime::createFromFormat('U', $time-10, new \DateTimeZone($timezone)),
+            DateTime::createFromFormat('U', $time-1, new \DateTimeZone($timezone)),
+            DateTime::createFromFormat('U', $time, new \DateTimeZone($timezone)),
+            DateTime::createFromFormat('U', $time+10, new \DateTimeZone($timezone))
+        ];
+        $jobs = [
+            $this->getJob($times[0]),
+            $this->getJob($times[1]),
+            $this->getJob($times[2]),
+            $this->getJob($times[3]),
         ];
         return [
             [
-                [DateTime::createFromFormat('U', $time-11), null],
-                $tasks,
-                $tasks
+                [DateTime::createFromFormat('U', $time-10), DateTime::createFromFormat('U', $time+11), true],
+                $jobs,
+                [
+                    new CallableAction($jobs[0], $times[0]),
+                    new CallableAction($jobs[1], $times[1]),
+                    new CallableAction($jobs[2], $times[2]),
+                    new CallableAction($jobs[3], $times[3]),
+                ]
             ],
             [
-                [DateTime::createFromFormat('U', $time-10), null, true],
-                $tasks,
-                $tasks
+                [DateTime::createFromFormat('U', $time-10), DateTime::createFromFormat('U', $time+11), false],
+                $jobs,
+                [
+                    new CallableAction($jobs[1], $times[1]),
+                    new CallableAction($jobs[2], $times[2]),
+                    new CallableAction($jobs[3], $times[3]),
+                ]
+            ],
+            [
+                [DateTime::createFromFormat('U', $time-10), DateTime::createFromFormat('U', $time), true],
+                $jobs,
+                [
+                    new CallableAction($jobs[0], $times[0]),
+                    new CallableAction($jobs[1], $times[1]),
+                    new CallableAction($jobs[2], $times[2]),
+                ]
             ],
             [
                 [DateTime::createFromFormat('U', $time-10), null, false],
-                $tasks,
+                $jobs,
                 [
-                    $tasks[1],
-                    $tasks[2],
-                    $tasks[3],
+                    new CallableAction($jobs[1], $times[1]),
+                    new CallableAction($jobs[2], $times[2]),
                 ]
             ],
             [
                 [DateTime::createFromFormat('U', $time), null, true],
-                $tasks,
+                $jobs,
                 [
-                    $tasks[2],
-                    $tasks[3],
+                    new CallableAction($jobs[2], $times[2]),
                 ]
             ],
             [
-                [DateTime::createFromFormat('U', $time+5), null, true],
-                $tasks,
+                [DateTime::createFromFormat('U', $time+5), DateTime::createFromFormat('U', $time+10), true],
+                $jobs,
                 [
-                    $tasks[3],
+                    new CallableAction($jobs[3], $times[3]),
                 ]
             ],
             [
                 [DateTime::createFromFormat('U', $time+11), null, true],
-                $tasks,
+                $jobs,
                 []
             ],
             [
                 [DateTime::createFromFormat('U', $time-11), DateTime::createFromFormat('U', $time-9)],
-                $tasks,
+                $jobs,
                 [
-                    $tasks[0]
+                    new CallableAction($jobs[0], $times[0]),
+                ]
+            ],
+            [
+                [DateTime::createFromFormat('U', $time-2), DateTime::createFromFormat('U', $time), true],
+                [$secondlyJob = $this->getJob(DateTime::createFromFormat('U', $time-2), 'FREQ=SECONDLY;COUNT=5')],
+                [
+                    new CallableAction($secondlyJob, DateTime::createFromFormat('U', $time-2)),
+                    new CallableAction($secondlyJob, DateTime::createFromFormat('U', $time-1)),
+                    new CallableAction($secondlyJob, DateTime::createFromFormat('U', $time)),
                 ]
             ],
         ];
     }
 
     /**
-     * @return CallableTask
+     * @return Job
      */
-    private function getTask($start)
+    private function getJob(\DateTimeInterface $startDate, $rrule = 'FREQ=MONTHLY;COUNT=5')
     {
         $callbackMock = $this->getMockBuilder('\stdClass')
             ->setMethods(['myCallBack'])
             ->getMock();
 
-        $callbackMock->expects($this->once())
-            ->method('myCallBack')
-            ->will($this->returnValue(true));
-
-        $timezone = 'UTC';
-        $startDate = DateTime::createFromFormat('U', $start, new \DateTimeZone($timezone));
-        $rule = new Rule('FREQ=MONTHLY;COUNT=5', $startDate, null, $timezone);
-        return new CallableTask($rule, [$callbackMock, 'myCallBack']);
+        $rule = new Rule($rrule, $startDate, null, 'UTC');
+        return new Job($rule, [$callbackMock, 'myCallBack']);
     }
 }

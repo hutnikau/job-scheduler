@@ -2,7 +2,8 @@
 
 namespace Scheduler;
 
-use Scheduler\Task\TaskInterface;
+use Scheduler\Job\JobInterface;
+use DateTimeInterface;
 
 /**
  * Interface Scheduler
@@ -11,20 +12,20 @@ use Scheduler\Task\TaskInterface;
 interface SchedulerInterface
 {
     /**
-     * Get Tasks to be executed between given dates
-     * Tasks are ordered by start time
+     * Get actions to be executed between given dates
+     * Actions are ordered by start time
      *
-     * @param \DateTime $from
-     * @param \DateTime|null $to - if not given then 'now'
-     * @param bool $inc - include boundary values (time of task executions is equals to $from or $to)
+     * @param DateTimeInterface $from
+     * @param DateTimeInterface|null $to - if not given then 'now'
+     * @param bool $inc - include boundary values (time of action executions is equals to $from or $to)
      * @return \Iterator
      */
-    public function getIterator(\DateTime $from, \DateTime $to = null, bool $inc = false):\Iterator;
+    public function getIterator(DateTimeInterface $from, DateTimeInterface $to = null, bool $inc = false):\Iterator;
 
     /**
-     * @param TaskInterface $task
+     * @param JobInterface $job
      * @return mixed
      */
-    public function addTask(TaskInterface $task);
+    public function addJob(JobInterface $job);
 
 }

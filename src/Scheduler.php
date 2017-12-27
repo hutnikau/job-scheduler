@@ -2,7 +2,10 @@
 
 namespace Scheduler;
 
-use Scheduler\Task\TaskInterface;
+use Scheduler\Action\ActionIterator;
+use Scheduler\Job\JobInterface;
+use Scheduler\Job\JobIterator;
+use DateTimeInterface;
 
 /**
  * Class Scheduler
@@ -12,35 +15,42 @@ use Scheduler\Task\TaskInterface;
 class Scheduler implements SchedulerInterface
 {
     /**
-     * @var TaskInterface[]
+     * @var JobInterface[]
      */
-    protected $tasks = [];
+    protected $jobs = [];
 
     /**
      * Scheduler constructor.
-     * @param TaskInterface[] $tasks
+     * @param JobInterface[] $jobs
      */
-    public function __construct(array $tasks = [])
+    public function __construct(array $jobs = [])
     {
-        foreach ($tasks as $task) {
-            $this->addTask($task);
+        foreach ($jobs as $job) {
+            $this->addJob($job);
         }
     }
 
     /**
      * @inheritdoc
      */
-    public function getIterator(\DateTime $from, \DateTime $to = null, bool $inc = false): \Iterator
+    public function getIterator(DateTimeInterface $from, DateTimeInterface $to = null, bool $inc = true): \Iterator
     {
-        $tasks = [];
+        $iterator = new \AppendIterator();
+        if ($to === null) {
+            $to = new \DateTime('now', $from->getTimezone());
+        }
+        foreach ($this->jobs as $job) {
+            $iterator->append(new ActionIterator($job, $from, $to, $inc));
+        }
+        return $iterator;
     }
 
     /**
-     * @param TaskInterface $task
+     * @param JobInterface $job
      * @return mixed|void
      */
-    public function addTask(TaskInterface $task)
+    public function addJob(JobInterface $job)
     {
-        $this->tasks[$task];
+        $this->jobs[] = $job;
     }
 }

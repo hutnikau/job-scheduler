@@ -1,6 +1,6 @@
 <?php
 
-namespace Scheduler;
+namespace Scheduler\Exception;
 
 /**
  * Class SchedulerException
