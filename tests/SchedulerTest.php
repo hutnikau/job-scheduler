@@ -91,15 +91,14 @@ class SchedulerTest extends TestCase
                 ]
             ],
             [
-                [DateTime::createFromFormat('U', $time-10), null, false],
+                [DateTime::createFromFormat('U', $time-10), DateTime::createFromFormat('U', $time), false],
                 $jobs,
                 [
                     new CallableAction($jobs[1], $times[1]),
-                    new CallableAction($jobs[2], $times[2]),
                 ]
             ],
             [
-                [DateTime::createFromFormat('U', $time), null, true],
+                [DateTime::createFromFormat('U', $time), DateTime::createFromFormat('U', $time), true],
                 $jobs,
                 [
                     new CallableAction($jobs[2], $times[2]),
@@ -113,7 +112,7 @@ class SchedulerTest extends TestCase
                 ]
             ],
             [
-                [DateTime::createFromFormat('U', $time+11), null, true],
+                [DateTime::createFromFormat('U', $time+11), DateTime::createFromFormat('U', $time), true],
                 $jobs,
                 []
             ],
