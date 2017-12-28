@@ -42,7 +42,7 @@ $job           = new \Scheduler\Job\Job($rule, function () {
 Here you may find more information about recurring rules:
 https://github.com/simshaun/recurr
 
-###Schedule a job
+### Schedule a job
 
 Scheduler constructor accepts array of jobs as first parameter:
 
@@ -56,7 +56,7 @@ $scheduler = new \Scheduler\Scheduler([
 $scheduler->addJob($anotherJob);
 ```
 
-###Run scheduled jobs 
+### Run scheduled jobs 
 
 Run all jobs scheduled from '2017-12-12 20:00:00' to '2017-12-12 20:10:00':
 
@@ -72,7 +72,7 @@ $reports   = $jobRunner->run($scheduler, $from, $to, true);
 
 `$jobRunner->run(...)` returns an array of reports (\Scheduler\Action\Report)
 
-###Reports
+### Reports
 
 `\Scheduler\Action\Report` class synopsis: 
 
@@ -90,7 +90,7 @@ In case if during execution an exception has been thrown then this exception wil
 `$report->getType()` returns one of two values: `\Scheduler\Action\Report::TYPE_SUCCESS | \Scheduler\Action\Report::TYPE_ERROR`
   
 
-##Warnings
+## Warnings
 
 1. Be careful with timezones. Make sure that you create `\DateTime` instances with correct timezone.
 2. Accuracy of scheduler up to seconds. You must be accurate with `$from`, `$to` parameters passed to the runner to not miss an action or not launch an action twice.   
