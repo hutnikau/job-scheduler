@@ -11,12 +11,12 @@ use Recurr\Rule;
 interface JobInterface
 {
     /**
-     * @return mixed
+     * @return Rule
      */
-    public function getRRule():Rule;
+    public function getRRule();
 
     /**
      * @return callable
      */
-    public function getCallable():callable;
+    public function getCallable();
 }

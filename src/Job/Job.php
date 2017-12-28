@@ -20,17 +20,18 @@ class Job implements JobInterface
     /**
      * Job constructor.
      * @param Rule $rRule - recurrence rules (@see https://github.com/simshaun/recurr)
+     * @param callable $callable
      */
-    public function __construct(Rule $rRule, callable $callabele)
+    public function __construct(Rule $rRule, callable $callable)
     {
         $this->rRule = $rRule;
-        $this->callable = $callabele;
+        $this->callable = $callable;
     }
 
     /**
      * @return Rule
      */
-    public function getRRule():Rule
+    public function getRRule()
     {
         return $this->rRule;
     }
@@ -38,7 +39,7 @@ class Job implements JobInterface
     /**
      * @return callable
      */
-    public function getCallable(): callable
+    public function getCallable()
     {
         return $this->callable;
     }

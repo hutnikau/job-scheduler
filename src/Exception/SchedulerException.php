@@ -2,8 +2,6 @@
 
 namespace Scheduler\Exception;
 
-use Throwable;
-
 /**
  * Class SchedulerException
  * @package Scheduler

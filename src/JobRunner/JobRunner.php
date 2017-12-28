@@ -16,7 +16,7 @@ class JobRunner implements JobRunnerInterface
     /**
      * @inheritdoc
      */
-    public function run(SchedulerInterface $scheduler, DateTimeInterface $from, DateTimeInterface $to = null, bool $inc = true)
+    public function run(SchedulerInterface $scheduler, DateTimeInterface $from, DateTimeInterface $to = null, $inc = true)
     {
         $actionsIterator = $scheduler->getIterator($from, $to, $inc);
         $reports = [];

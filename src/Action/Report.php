@@ -46,7 +46,7 @@ class Report
     /**
      * @return ActionInterface
      */
-    public function getAction():ActionInterface
+    public function getAction()
     {
         return $this->action;
     }

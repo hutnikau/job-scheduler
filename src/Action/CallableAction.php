@@ -41,7 +41,7 @@ class CallableAction implements ActionInterface
     /**
      * @inheritdoc
      */
-    public function getTime(): DateTimeInterface
+    public function getTime()
     {
         return $this->time;
     }
@@ -49,7 +49,7 @@ class CallableAction implements ActionInterface
     /**
      * @inheritdoc
      */
-    public function getJob(): JobInterface
+    public function getJob()
     {
         return $this->job;
     }

@@ -33,7 +33,7 @@ class Scheduler implements SchedulerInterface
     /**
      * @inheritdoc
      */
-    public function getIterator(DateTimeInterface $from, DateTimeInterface $to = null, bool $inc = true): \Iterator
+    public function getIterator(DateTimeInterface $from, DateTimeInterface $to = null, $inc = true)
     {
         $iterator = new \ArrayIterator();
         if ($to === null) {

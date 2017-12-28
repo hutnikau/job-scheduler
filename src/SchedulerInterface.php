@@ -20,7 +20,7 @@ interface SchedulerInterface
      * @param bool $inc - include boundary values (time of action executions is equals to $from or $to)
      * @return \Iterator
      */
-    public function getIterator(DateTimeInterface $from, DateTimeInterface $to = null, bool $inc = false):\Iterator;
+    public function getIterator(DateTimeInterface $from, DateTimeInterface $to = null, $inc = false);
 
     /**
      * @param JobInterface $job

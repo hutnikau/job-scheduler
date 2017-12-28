@@ -18,5 +18,5 @@ interface JobRunnerInterface
      * @param bool $inc - include boundary values (time of action executions is equals to $from or $to)
      * @return mixed
      */
-    public function run(SchedulerInterface $scheduler, DateTimeInterface $from, DateTimeInterface $to = null, bool $inc = true);
+    public function run(SchedulerInterface $scheduler, DateTimeInterface $from, DateTimeInterface $to = null, $inc = true);
 }

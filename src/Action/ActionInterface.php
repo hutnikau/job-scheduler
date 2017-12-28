@@ -20,11 +20,11 @@ interface ActionInterface
      * Get time of occurrence. Note that this is not necessary time of execution.
      * @return DateTimeInterface
      */
-    public function getTime():DateTimeInterface;
+    public function getTime();
 
     /**
      * Related job
      * @return JobInterface
      */
-    public function getJob():JobInterface;
+    public function getJob();
 }
