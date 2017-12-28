@@ -32,7 +32,7 @@ class ActionIterator extends \ArrayIterator
         foreach ($recurrenceCollection as $recurrence) {
             $actions[] = new CallableAction($job, $recurrence->getStart());
         }
-        return parent::__construct($actions);
+        parent::__construct($actions);
     }
 
 }
