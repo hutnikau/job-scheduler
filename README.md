@@ -19,14 +19,18 @@ The main goal is reduce amount of cron jobs to only one.
 
 Via Composer
 
-``` bash
+```bash
 $ composer require hutnikau/job-scheduler
 ```
 
 ## Usage
 
 ### Create a job
-``` php
+Job constructor have the following signature:
+`\Scheduler\Job\Job::__construct(Rule $rRule, callable $callable);`
+
+Example:
+```php
 $executionTime = new \DateTime('2017-12-12 20:00:00');
 //run monthly, at 20:00:00, 5 times
 $rule          = new \Recurr\Rule('FREQ=MONTHLY;COUNT=5', $executionTime);
@@ -35,7 +39,12 @@ $job           = new \Scheduler\Job\Job($rule, function () {
 });
 ```
 
+Here you may find more information about recurring rules:
+https://github.com/simshaun/recurr
+
 ###Schedule a job
+
+Scheduler constructor accepts array of jobs as first parameter:
 
 ```php
 $scheduler = new \Scheduler\Scheduler([
@@ -43,18 +52,52 @@ $scheduler = new \Scheduler\Scheduler([
     //more jobs here
 ]);
 
-//also you may add jobs by \Scheduler\Scheduler::addJob($job)
+//also you may add jobs by `\Scheduler\Scheduler::addJob($job)`
 $scheduler->addJob($anotherJob);
 ```
 
-### run scheduled jobs 
+###Run scheduled jobs 
 
+Run all jobs scheduled from '2017-12-12 20:00:00' to '2017-12-12 20:10:00':
 
+```php
+$jobRunner = new \Scheduler\JobRunner\JobRunner();
+$from      = new \DateTime('2017-12-12 20:00:00');
+$to        = new \DateTime('2017-12-12 20:10:00');
+$reports   = $jobRunner->run($scheduler, $from, $to, true);
+```
 
+> Note: the last `true` parameter means that jobs scheduled exactly at `from` or `to` time will be included.
+> In this example it means that jobs scheduled to be run at '2017-12-12 20:00:00' or '2017-12-12 20:10:00' will be executed.
+
+`$jobRunner->run(...)` returns an array of reports (\Scheduler\Action\Report)
+
+###Reports
+
+`\Scheduler\Action\Report` class synopsis: 
+
+```
+\Scheduler\Action\Report {
+    /* Methods */
+    public mixed getReport ( void )
+    public mixed getAction ( void )
+    public mixed getType ( void )
+}
+```
+
+In case if during execution an exception has been thrown then this exception will be returned as a result of action.
+
+`$report->getType()` returns one of two values: `\Scheduler\Action\Report::TYPE_SUCCESS | \Scheduler\Action\Report::TYPE_ERROR`
+  
+
+##Warnings
+
+1. Be careful with timezones. Make sure that you create `\DateTime` instances with correct timezone.
+2. Accuracy of scheduler up to seconds. You must be accurate with `$from`, `$to` parameters passed to the runner to not miss an action or not launch an action twice.   
 
 ## Testing
 
-``` bash
+```bash
 $ composer test
 ```
 
