@@ -1,3 +1,17 @@
 # Changelog
 
-All notable changes will be documented in this file.
+## 0.1.2 - 2017-12-29
+
+### Added 
+- add `Job::createFromString()` factory method
+
+### Changed
+- Updated `README.md` file
+ 
+## 0.1.1 - 2017-12-28
+
+### Added 
+- PHP 5.6 support
+
+### Changed
+- Updated `README.md` file 
