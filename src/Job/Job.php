@@ -3,6 +3,9 @@
 namespace Scheduler\Job;
 
 use Recurr\Rule;
+use DateTimeInterface;
+use DateTimeZone;
+use DateTime;
 
 /**
  * Class Job
@@ -42,5 +45,24 @@ class Job implements JobInterface
     public function getCallable()
     {
         return $this->callable;
+    }
+
+    /**
+     * @param string $rRule RRULE string
+     * @param string|DateTimeInterface $startDate - @see DateTime supported formats
+     * @param callable $callback
+     * @param string|DateTimeZone $timezone - If $timezone is omitted, the current timezone will be used.
+     * @return Job
+     */
+    public static function createFromString($rRule, $startDate, callable $callback, $timezone = null)
+    {
+        if (!$startDate instanceof DateTimeInterface) {
+            $startDate = new DateTime($startDate, new \DateTimeZone($timezone));
+        }
+        if (empty($timezone)) {
+            $timezone = $startDate->getTimezone()->getName();
+        }
+        $rRule = new Rule($rRule, $startDate, null, $timezone);
+        return new self($rRule, $callback);
     }
 }

@@ -39,6 +39,16 @@ $job           = new \Scheduler\Job\Job($rule, function () {
 });
 ```
 
+Create Job from string:
+```php
+$job = \Scheduler\Job\Job::createFromString(
+    'FREQ=MONTHLY;COUNT=5', //Recurrence rule 
+    '2017-12-28T21:00:00',  //Start date
+    function() {},          //Callback
+    'Europe/Minsk'          //Tmezone. If $timezone is omitted, the current timezone will be used
+);
+```
+
 Here you may find more information about recurring rules:
 https://github.com/simshaun/recurr
 
