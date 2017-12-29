@@ -40,17 +40,9 @@ class Scheduler implements SchedulerInterface
             $to = new \DateTime('now', $from->getTimezone());
         }
         foreach ($this->jobs as $job) {
-            $actionIterator = new ActionIterator($job, $from, $to, $inc);
-            foreach ($actionIterator as $action) {
-                $iterator->append($action);
-            }
+            $this->appendActions($iterator, $job, $from, $to, $inc);
         }
-        $iterator->uasort(function ($a, $b) {
-            if ($a->getTime()->getTimestamp() == $b->getTime()->getTimestamp()) {
-                return 0;
-            }
-            return ($a->getTime()->getTimestamp() < $b->getTime()->getTimestamp()) ? -1 : 1;
-        });
+        $this->sortActions($iterator);
         return $iterator;
     }
 
@@ -61,5 +53,34 @@ class Scheduler implements SchedulerInterface
     public function addJob(JobInterface $job)
     {
         $this->jobs[] = $job;
+    }
+
+    /**
+     * @param \ArrayIterator $iterator - iterator to append actions
+     * @param JobInterface $job
+     * @param DateTimeInterface $from
+     * @param DateTimeInterface $to
+     * @param $inc
+     */
+    protected function appendActions(\ArrayIterator $iterator, JobInterface $job, DateTimeInterface $from, DateTimeInterface $to, $inc)
+    {
+        $actionIterator = new ActionIterator($job, $from, $to, $inc);
+        foreach ($actionIterator as $action) {
+            $iterator->append($action);
+        }
+    }
+
+    /**
+     * Sort actions by execution time
+     * @param \ArrayIterator $iterator - iterator to append actions
+     */
+    protected function sortActions(\ArrayIterator $iterator)
+    {
+        $iterator->uasort(function ($a, $b) {
+            if ($a->getTime()->getTimestamp() == $b->getTime()->getTimestamp()) {
+                return 0;
+            }
+            return ($a->getTime()->getTimestamp() < $b->getTime()->getTimestamp()) ? -1 : 1;
+        });
     }
 }
