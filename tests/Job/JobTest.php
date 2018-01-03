@@ -56,6 +56,10 @@ class JobTest extends TestCase
         $job = Job::createFromString('FREQ=MONTHLY;COUNT=5', new DateTime($dtString), $callback, null);
         $this->assertEquals((new DateTime($dtString))->getTimestamp(), $job->getRRule()->getStartDate()->getTimestamp());
         $this->assertEquals(date_default_timezone_get(), $job->getRRule()->getStartDate()->getTimezone()->getName());
+
+        $job = Job::createFromString('FREQ=MONTHLY;COUNT=5', new DateTime($dtString), $callback, 'CET');
+        $this->assertEquals((new DateTime($dtString))->getTimestamp(), $job->getRRule()->getStartDate()->getTimestamp());
+        $this->assertEquals('CET', $job->getRRule()->getStartDate()->getTimezone()->getName());
     }
 
     /**
