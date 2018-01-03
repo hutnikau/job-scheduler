@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.0 - 2018-01-03
+
+### Changed
+- Wrapped usage of rrule library into \Scheduler\Job\RRule class
+ 
 ## 0.1.2 - 2017-12-29
 
 ### Added 
