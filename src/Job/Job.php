@@ -2,7 +2,6 @@
 
 namespace Scheduler\Job;
 
-use Recurr\Rule;
 use DateTimeInterface;
 use DateTimeZone;
 use DateTime;
@@ -14,7 +13,7 @@ use DateTime;
  */
 class Job implements JobInterface
 {
-    /** @var Rule */
+    /** @var RRule */
     private $rRule;
 
     /** @var callable */
@@ -22,17 +21,17 @@ class Job implements JobInterface
 
     /**
      * Job constructor.
-     * @param Rule $rRule - recurrence rules (@see https://github.com/simshaun/recurr)
+     * @param RRule $rRule - recurrence rules (@see https://github.com/simshaun/recurr)
      * @param callable $callable
      */
-    public function __construct(Rule $rRule, callable $callable)
+    public function __construct(RRule $rRule, callable $callable)
     {
         $this->rRule = $rRule;
         $this->callable = $callable;
     }
 
     /**
-     * @return Rule
+     * @return RRule
      */
     public function getRRule()
     {
@@ -56,13 +55,17 @@ class Job implements JobInterface
      */
     public static function createFromString($rRule, $startDate, callable $callback, $timezone = null)
     {
-        if (!$startDate instanceof DateTimeInterface) {
-            $startDate = new DateTime($startDate, new \DateTimeZone($timezone));
-        }
         if (empty($timezone)) {
-            $timezone = $startDate->getTimezone()->getName();
+            $timezone = date_default_timezone_get();
         }
-        $rRule = new Rule($rRule, $startDate, null, $timezone);
+        if (is_string($timezone)) {
+            $timezone = new \DateTimeZone($timezone);
+        }
+        if (!$startDate instanceof DateTimeInterface) {
+            $startDate = new DateTime($startDate, $timezone);
+        }
+        $timezone = $startDate->getTimezone()->getName();
+        $rRule = new RRule($rRule, $startDate, $timezone);
         return new self($rRule, $callback);
     }
 }

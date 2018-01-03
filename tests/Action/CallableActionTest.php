@@ -4,8 +4,8 @@ namespace SchedulerTests\Action;
 
 use Scheduler\Action\CallableAction;
 use PHPUnit\Framework\TestCase;
-use Recurr\Rule;
 use Scheduler\Job\Job;
+use Scheduler\Job\RRule;
 
 /**
  * Class CallableActionTest
@@ -54,13 +54,12 @@ class CallableActionTest extends TestCase
     }
 
     /**
-     * @return Rule
+     * @return RRule
      */
     private function getRRule()
     {
         $startDate = new \DateTime('2013-06-12 20:00:00');
-        $endDate = new \DateTime('2013-06-14 20:00:00'); // Optional
-        return new Rule('FREQ=MONTHLY;COUNT=5', $startDate, $endDate);
+        return new RRule('FREQ=MONTHLY;COUNT=5', $startDate);
     }
 
 }

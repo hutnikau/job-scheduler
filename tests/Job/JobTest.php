@@ -4,7 +4,7 @@ namespace SchedulerTests\Job;
 
 use PHPUnit\Framework\TestCase;
 use Scheduler\Job\Job;
-use Recurr\Rule;
+use Scheduler\Job\RRule;
 use DateTime;
 use DateTimeZone;
 
@@ -44,10 +44,13 @@ class JobTest extends TestCase
 
         //from strings
         $job = Job::createFromString('FREQ=MONTHLY;COUNT=5', $dtString, $callback, 'Europe/Minsk');
-        $this->assertEquals('MONTHLY', $job->getRRule()->getFreqAsText());
-        $this->assertEquals(5, $job->getRRule()->getCount());
+        $this->assertEquals('FREQ=MONTHLY;COUNT=5', $job->getRRule()->getRrule());
         $this->assertEquals((new DateTime($dtString, new DateTimeZone($tzString)))->getTimestamp(), $job->getRRule()->getStartDate()->getTimestamp());
         $this->assertEquals('Europe/Minsk', $job->getRRule()->getStartDate()->getTimezone()->getName());
+
+        //from strings
+        $job = Job::createFromString('FREQ=MONTHLY;COUNT=5', $dtString, $callback, null);
+        $this->assertEquals(date_default_timezone_get(), $job->getRRule()->getStartDate()->getTimezone()->getName());
 
         //from instances
         $job = Job::createFromString('FREQ=MONTHLY;COUNT=5', new DateTime($dtString), $callback, null);
@@ -56,13 +59,11 @@ class JobTest extends TestCase
     }
 
     /**
-     * @return Rule
+     * @return RRule
      */
     private function getRRule()
     {
         $startDate   = new \DateTime('2013-06-12 20:00:00');
-        $endDate     = new \DateTime('2013-06-14 20:00:00'); // Optional
-        return new Rule('FREQ=MONTHLY;COUNT=5', $startDate, $endDate);
+        return new RRule('FREQ=MONTHLY;COUNT=5', $startDate);
     }
-
 }
