@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Scheduler\Scheduler;
 use Scheduler\Action\CallableAction;
 use Scheduler\Job\Job;
-use Recurr\Rule;
+use Scheduler\Job\RRule;
 use DateTime;
 
 /**
@@ -158,7 +158,7 @@ class SchedulerTest extends TestCase
             ->setMethods(['myCallBack'])
             ->getMock();
 
-        $rule = new Rule($rrule, $startDate, null, 'UTC');
+        $rule = new RRule($rrule, $startDate);
         return new Job($rule, [$callbackMock, 'myCallBack']);
     }
 }

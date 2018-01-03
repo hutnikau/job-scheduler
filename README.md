@@ -27,13 +27,13 @@ $ composer require hutnikau/job-scheduler
 
 ### Create a job
 Job constructor have the following signature:
-`\Scheduler\Job\Job::__construct(Rule $rRule, callable $callable);`
+`\Scheduler\Job\Job::__construct(RRule $rRule, callable $callable);`
 
 Example:
 ```php
 $executionTime = new \DateTime('2017-12-12 20:00:00');
 //run monthly, at 20:00:00, 5 times
-$rule          = new \Recurr\Rule('FREQ=MONTHLY;COUNT=5', $executionTime);
+$rule          = new \Scheduler\Job\RRule('FREQ=MONTHLY;COUNT=5', $executionTime);
 $job           = new \Scheduler\Job\Job($rule, function () {
     //do something
 });

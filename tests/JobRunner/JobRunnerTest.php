@@ -7,7 +7,7 @@ use Scheduler\Job\Job;
 use Scheduler\Action\Report;
 use Scheduler\Scheduler;
 use Scheduler\Job\CallableAction;
-use Recurr\Rule;
+use Scheduler\Job\RRule;
 use DateTime;
 use Scheduler\JobRunner\JobRunner;
 
@@ -63,7 +63,7 @@ class JobRunnerTest extends TestCase
 
         $timezone = 'UTC';
         $startDate = DateTime::createFromFormat('U', $start, new \DateTimeZone($timezone));
-        $rule = new Rule($rrule, $startDate, null, $timezone);
+        $rule = new RRule($rrule, $startDate);
         return new Job($rule, [$callbackMock, 'myCallBack']);
     }
 }

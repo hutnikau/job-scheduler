@@ -2,8 +2,6 @@
 
 namespace Scheduler\Job;
 
-use Recurr\Rule;
-
 /**
  * Interface JobInterface
  * @package Job
@@ -11,7 +9,7 @@ use Recurr\Rule;
 interface JobInterface
 {
     /**
-     * @return Rule
+     * @return RRule
      */
     public function getRRule();
 
