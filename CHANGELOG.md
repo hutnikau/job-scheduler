@@ -3,7 +3,7 @@
 ## 0.2.1 - 2018-01-03
 
 ### Fixed
-- Fix timezone retrieval in ` Job::createFromString()`
+- Fix timezone processing in `Job::createFromString()`
 
 ## 0.2.0 - 2018-01-03
 

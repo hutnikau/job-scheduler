@@ -51,23 +51,20 @@ class Job implements JobInterface
      * @param string|DateTimeInterface $startDate - @see DateTime supported formats
      * @param callable $callback
      * @param string|DateTimeZone $timezone - If $timezone is omitted, the current timezone will be used.
-     *                                        If $startDate instance of `DateTimeInterface` and $timezone was given then $startDate's timezone will be overwritten.
+     *                                        If $startDate is instance of `DateTimeInterface` then $timezone parameter will be ignored
      * @return Job
      */
     public static function createFromString($rRule, $startDate, callable $callback, $timezone = null)
     {
         if ($timezone === null) {
-            $timezone = $startDate instanceof DateTimeInterface?
-                $startDate->getTimezone() :
-                new \DateTimeZone(date_default_timezone_get());
+            $timezone = date_default_timezone_get();
         }
         if (is_string($timezone)) {
-            $timezone = new \DateTimeZone($timezone);
+            $timezone = new DateTimeZone($timezone);
         }
         if (!$startDate instanceof DateTimeInterface) {
             $startDate = new DateTime($startDate, $timezone);
         }
-        $startDate->setTimezone($timezone);
         $rRule = new RRule($rRule, $startDate);
         return new self($rRule, $callback);
     }
