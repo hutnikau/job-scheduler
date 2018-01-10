@@ -77,10 +77,7 @@ class Scheduler implements SchedulerInterface
     protected function sortActions(\ArrayIterator $iterator)
     {
         $iterator->uasort(function ($a, $b) {
-            if ($a->getTime()->getTimestamp() == $b->getTime()->getTimestamp()) {
-                return 0;
-            }
-            return ($a->getTime()->getTimestamp() < $b->getTime()->getTimestamp()) ? -1 : 1;
+            return $a->getTime()->getTimestamp() - $b->getTime()->getTimestamp();
         });
     }
 }
