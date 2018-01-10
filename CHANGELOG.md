@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.2 - 2018-01-10
+
+### Added
+- .gitattributes file
+
+### Changed
+- Improved actions sorting by timestamp
+
 ## 0.2.1 - 2018-01-03
 
 ### Fixed
