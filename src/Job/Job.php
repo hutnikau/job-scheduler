@@ -13,7 +13,7 @@ use DateTime;
  */
 class Job implements JobInterface
 {
-    /** @var RRule */
+    /** @var RRuleInterface */
     private $rRule;
 
     /** @var callable */
@@ -21,17 +21,17 @@ class Job implements JobInterface
 
     /**
      * Job constructor.
-     * @param RRule $rRule - recurrence rules (@see https://github.com/simshaun/recurr)
+     * @param RRuleInterface $rRule - recurrence rule
      * @param callable $callable
      */
-    public function __construct(RRule $rRule, callable $callable)
+    public function __construct(RRuleInterface $rRule, callable $callable)
     {
         $this->rRule = $rRule;
         $this->callable = $callable;
     }
 
     /**
-     * @return RRule
+     * @return RRuleInterface
      */
     public function getRRule()
     {
@@ -65,7 +65,23 @@ class Job implements JobInterface
         if (!$startDate instanceof DateTimeInterface) {
             $startDate = new DateTime($startDate, $timezone);
         }
-        $rRule = new RRule($rRule, $startDate);
+        $rRule = self::createRRule($rRule, $startDate);
         return new self($rRule, $callback);
+    }
+
+    /**
+     * @param $rRule
+     * @param DateTimeInterface $startDate
+     * @return RRuleInterface
+     */
+    protected static function createRRule($rRule, DateTimeInterface $startDate)
+    {
+        //select implementation
+        if (stripos($rRule, 'freq=') !== false) {
+            $result = new RRule($rRule, $startDate);
+        } else {
+            $result = new CronRule($rRule, $startDate);
+        }
+        return $result;
     }
 }

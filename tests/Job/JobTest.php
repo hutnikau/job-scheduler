@@ -5,6 +5,7 @@ namespace SchedulerTests\Job;
 use PHPUnit\Framework\TestCase;
 use Scheduler\Job\Job;
 use Scheduler\Job\RRule;
+use Scheduler\Job\CronRule;
 use DateTime;
 use DateTimeZone;
 
@@ -61,6 +62,9 @@ class JobTest extends TestCase
         $job = Job::createFromString('FREQ=MONTHLY;COUNT=5', new DateTime($dtString, new DateTimeZone('CET')), $callback, $tzString);
         $this->assertEquals((new DateTime($dtString, new DateTimeZone('CET')))->getTimestamp(), $job->getRRule()->getStartDate()->getTimestamp());
         $this->assertEquals('CET', $job->getRRule()->getStartDate()->getTimezone()->getName());
+
+        $job = Job::createFromString('* * * * *', new DateTime($dtString, new DateTimeZone('CET')), $callback, $tzString);
+        $this->assertTrue($job->getRRule() instanceof CronRule);
     }
 
     /**
@@ -68,7 +72,7 @@ class JobTest extends TestCase
      */
     private function getRRule()
     {
-        $startDate   = new \DateTime('2013-06-12 20:00:00');
+        $startDate = new \DateTime('2013-06-12 20:00:00');
         return new RRule('FREQ=MONTHLY;COUNT=5', $startDate);
     }
 }
