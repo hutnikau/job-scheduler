@@ -6,9 +6,11 @@ use DateTimeInterface;
 use Recurr\Rule as RecurrRule;
 use Recurr\Recurrence;
 use Recurr\Transformer\ArrayTransformer;
+use Recurr\Transformer\Constraint\BetweenConstraint;
+
 
 /**
- * Interface RRule
+ * Class RRule
  * @package Scheduler\Job
  */
 class RRule implements RRuleInterface
@@ -55,11 +57,12 @@ class RRule implements RRuleInterface
     {
         $rRule = new RecurrRule($this->getRrule(), $this->getStartDate());
         $rRuleTransformer = new ArrayTransformer();
-        $recurrenceCollection = $rRuleTransformer->transform($rRule)->startsBetween($from, $to, $inc);
+        $constraint = new BetweenConstraint($from, $to, $inc);
+        $recurrenceCollection = $rRuleTransformer->transform($rRule, $constraint);
         $result = [];
         /** @var Recurrence $recurrence */
         foreach ($recurrenceCollection as $recurrence) {
-            $result[] =$recurrence->getStart();
+            $result[] = $recurrence->getStart();
         }
         return $result;
     }

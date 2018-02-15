@@ -5,29 +5,29 @@ namespace SchedulerTests\Job;
 use PHPUnit\Framework\TestCase;
 use DateTimeInterface;
 use DateTime;
-use Scheduler\Job\RRule;
+use Scheduler\Job\CronRule;
 
-class RRuleTest extends TestCase
+class CronRuleTest extends TestCase
 {
     public function testGetStartDate()
     {
         $dt = new DateTime('2017-12-28T21:00:00');
-        $rRule = new RRule('FREQ=MONTHLY;COUNT=5', $dt);
+        $rRule = new CronRule('0 0 1 * *', $dt);
         $this->assertEquals($dt, $rRule->getStartDate());
     }
 
     public function testGetRrule()
     {
         $dt = new DateTime('2017-12-28T21:00:00');
-        $rRule = new RRule('FREQ=MONTHLY;COUNT=5', $dt);
-        $this->assertEquals('FREQ=MONTHLY;COUNT=5', $rRule->getRrule());
+        $rRule = new CronRule('0 0 1 * *', $dt); //monthly
+        $this->assertEquals('0 0 1 * *', $rRule->getRrule());
     }
 
     public function testGetRecurrences()
     {
         $dt = new DateTime('2017-12-28T21:00:00');
 
-        $rRule = new RRule('FREQ=MINUTELY;', $dt);
+        $rRule = new CronRule('* * * * *', $dt); //minutely
         $this->assertEquals(5, count($rRule->getRecurrences($dt, DateTime::createFromFormat('U', $dt->getTimestamp()+(60*4)), true)));
         $this->assertEquals(3, count($rRule->getRecurrences($dt, DateTime::createFromFormat('U', $dt->getTimestamp()+(60*4)), false)));
         $this->assertEquals(1, count($rRule->getRecurrences($dt, $dt, true)));
@@ -50,6 +50,7 @@ class RRuleTest extends TestCase
                 )
             )
         );
+        $this->assertEquals(1001, count($rRule->getRecurrences($dt, DateTime::createFromFormat('U', $dt->getTimestamp()+(60*1000)), true)));
 
         $dt = new DateTime('2017-12-28T21:00:01');
         $this->assertEquals(4, count($rRule->getRecurrences($dt, DateTime::createFromFormat('U', $dt->getTimestamp()+(60*4)), true)));
