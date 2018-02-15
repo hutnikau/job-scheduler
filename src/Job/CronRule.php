@@ -48,16 +48,18 @@ class CronRule extends AbstractRule
     {
         $firstIteration = true;
         $result = [];
+        $toTimestamp = $to->getTimestamp() + (int) $inc;
         //make sure that $from is DateTime instance
         $from = new DateTime('@'.$from->getTimestamp());
         do {
             $nextRunDate = $rRule->getNextRunDate($from, 0, $firstIteration && $inc);
-            if ($nextRunDate->getTimestamp() < ($to->getTimestamp() + (int) $inc) && $from->getTimestamp() <= $nextRunDate->getTimestamp()) {
+            $nextRunTimestamp = $nextRunDate->getTimestamp();
+            if ($nextRunTimestamp < $toTimestamp && $from->getTimestamp() <= $nextRunTimestamp) {
                 $result[] = $nextRunDate;
             }
             $firstIteration = false;
             $from = $nextRunDate;
-        } while ($nextRunDate->getTimestamp() < ($to->getTimestamp() + (int) $inc));
+        } while ($nextRunTimestamp < $toTimestamp);
         return $result;
     }
 }

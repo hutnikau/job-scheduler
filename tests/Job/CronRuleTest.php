@@ -50,9 +50,28 @@ class CronRuleTest extends TestCase
                 )
             )
         );
+        $this->assertEquals(1,
+            count(
+                $rRule->getRecurrences(
+                    DateTime::createFromFormat('U',  $dt->getTimestamp()-(60*10)),
+                    $dt,
+                    true
+                )
+            )
+        );
+        $this->assertEquals(0,
+            count(
+                $rRule->getRecurrences(
+                    DateTime::createFromFormat('U',  $dt->getTimestamp()-(60*10)),
+                    $dt,
+                    false
+                )
+            )
+        );
         $this->assertEquals(1001, count($rRule->getRecurrences($dt, DateTime::createFromFormat('U', $dt->getTimestamp()+(60*1000)), true)));
 
         $dt = new DateTime('2017-12-28T21:00:01');
         $this->assertEquals(4, count($rRule->getRecurrences($dt, DateTime::createFromFormat('U', $dt->getTimestamp()+(60*4)), true)));
+        $this->assertEquals(4, count($rRule->getRecurrences($dt, DateTime::createFromFormat('U', $dt->getTimestamp()+(60*4)), false)));
     }
 }
