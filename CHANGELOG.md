@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0 - 2018-02-15
+
+### Added
+- Cron syntax support
+
 ## 0.2.2 - 2018-01-10
 
 ### Added
