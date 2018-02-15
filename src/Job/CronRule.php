@@ -10,38 +10,8 @@ use Cron\CronExpression;
  * @package Scheduler\Job
  * @author Aleh Hutnikau, <goodnickoff@gmail.com>
  */
-class CronRule implements RRuleInterface
+class CronRule extends AbstractRule
 {
-
-    private $startDate;
-    private $rRule;
-
-    /**
-     * RRule constructor.
-     * @param string $rRule
-     * @param string|DateTimeInterface $startDate
-     */
-    public function __construct($rRule, DateTimeInterface $startDate)
-    {
-        $this->rRule = $rRule;
-        $this->startDate = $startDate;
-    }
-
-    /**
-     * @return DateTimeInterface
-     */
-    public function getStartDate()
-    {
-        return $this->startDate;
-    }
-
-    /**
-     * @return string RRULE string
-     */
-    public function getRrule()
-    {
-        return $this->rRule;
-    }
 
     /**
      * @param DateTimeInterface $from
@@ -75,22 +45,5 @@ class CronRule implements RRuleInterface
         } while ($nextRunDate->getTimestamp() < ($to->getTimestamp() + (int) $inc));
 
         return $result;
-
-
-//        while(($nextRunDate = $rRule->getNextRunDate($from, 0, $inc)->getTimestamp()) < ($to->getTimestamp() + (int) $inc)) {
-//            $nextRunDate = $rRule->getNextRunDate($from, 0, $inc);
-//            $result[] = $recurrence->getStart()
-//        }
-
-//        $rRule = new RecurrRule($this->getRrule(), $this->getStartDate());
-//        $rRuleTransformer = new ArrayTransformer();
-//        $constraint = new BetweenConstraint($from, $to, $inc);
-//        $recurrenceCollection = $rRuleTransformer->transform($rRule, $constraint);
-//        $result = [];
-//        /** @var Recurrence $recurrence */
-//        foreach ($recurrenceCollection as $recurrence) {
-//            $result[] = $recurrence->getStart();
-//        }
-//        return $result;
     }
 }
