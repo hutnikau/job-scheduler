@@ -31,6 +31,8 @@ class CronRule extends AbstractRule
         }
 
         if (($to->getTimestamp() + (int) $inc) > $this->getStartDate()->getTimestamp()) {
+            //make sure that $from is DateTime instance
+            $from = new DateTime('@'.$from->getTimestamp());
             $result = $this->getDates($rRule, $from, $to, $inc);
         }
 
@@ -39,25 +41,22 @@ class CronRule extends AbstractRule
 
     /**
      * @param CronExpression $rRule
-     * @param DateTimeInterface $from
+     * @param DateTime $from
      * @param DateTimeInterface $to
      * @param $inc
      * @return DateTimeInterface[]
      */
-    private function getDates(CronExpression $rRule, DateTimeInterface $from, DateTimeInterface $to, $inc)
+    private function getDates(CronExpression $rRule, DateTime $from, DateTimeInterface $to, $inc)
     {
-        $firstIteration = true;
         $result = [];
         $toTimestamp = $to->getTimestamp() + (int) $inc;
-        //make sure that $from is DateTime instance
-        $from = new DateTime('@'.$from->getTimestamp());
         do {
-            $nextRunDate = $rRule->getNextRunDate($from, 0, $firstIteration && $inc);
+            $nextRunDate = $rRule->getNextRunDate($from, 0, $inc);
             $nextRunTimestamp = $nextRunDate->getTimestamp();
             if ($nextRunTimestamp < $toTimestamp && $from->getTimestamp() <= $nextRunTimestamp) {
                 $result[] = $nextRunDate;
             }
-            $firstIteration = false;
+            $inc = false;
             $from = $nextRunDate;
         } while ($nextRunTimestamp < $toTimestamp);
         return $result;
