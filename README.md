@@ -8,7 +8,8 @@
 [![Total Downloads][ico-downloads]][link-downloads]
 
 Job scheduler is a PHP library for scheduling time-based repetitive actions.
-It uses ([RRULE](https://tools.ietf.org/html/rfc5545)) to configure time and recurrence rule of each job.  
+It uses ([RRULE](https://tools.ietf.org/html/rfc5545)) or Cron notation to configure time and recurrence rule of each job.  
+
 
 ## Goals
 
@@ -30,6 +31,7 @@ Job constructor have the following signature:
 `\Scheduler\Job\Job::__construct(RRule $rRule, callable $callable);`
 
 Example:
+iCalendar syntax
 ```php
 $executionTime = new \DateTime('2017-12-12 20:00:00');
 //run monthly, at 20:00:00, 5 times
@@ -39,7 +41,19 @@ $job           = new \Scheduler\Job\Job($rule, function () {
 });
 ```
 
-Create Job from string:
+Cron syntax:
+```php
+$executionTime = new \DateTime('2017-12-12 20:00:00');
+//run monthly, at 20:00:00
+$rule          = new \Scheduler\Job\CronRule('0 20 * 1 *', $executionTime);
+$job           = new \Scheduler\Job\Job($rule, function () {
+    //do something
+});
+```
+
+> Note: Cron syntax does not allow to limit number of occurrences.
+
+Create Job from string using iCalendar syntax:
 ```php
 $job = \Scheduler\Job\Job::createFromString(
     'FREQ=MONTHLY;COUNT=5', //Recurrence rule 
@@ -49,8 +63,16 @@ $job = \Scheduler\Job\Job::createFromString(
 );
 ```
 
-Here you may find more information about recurring rules:
-https://github.com/simshaun/recurr
+Create Job from string using cron syntax:
+
+```php
+$job = \Scheduler\Job\Job::createFromString(
+    '0 0 1 * *',            //Cron syntax recurrence rule 
+    '2017-12-28T21:00:00',  //Start date
+    function() {},          //Callback
+    'Europe/Minsk'          //Tmezone. If $timezone is omitted, the current timezone will be used
+);
+```
 
 ### Schedule a job
 
@@ -104,6 +126,8 @@ In case if during execution an exception has been thrown then this exception wil
 
 1. Be careful with timezones. Make sure that you create `\DateTime` instances with correct timezone.
 2. Accuracy of scheduler up to seconds. You must be accurate with `$from`, `$to` parameters passed to the runner to not miss an action or not launch an action twice.   
+3. Use `\Scheduler\Job\CronRule` implementation in case if number of occurrences is not limited. 
+4. `\Scheduler\Job\RRule` implementation is more flexible but in case of large or unlimited number of repeats there may be performance issues. By default limit of `\Scheduler\Job\RRule` implementation is 732 repeats. More information: https://github.com/simshaun/recurr
 
 ## Testing
 
