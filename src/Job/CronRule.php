@@ -25,16 +25,28 @@ class CronRule extends AbstractRule
         $rRule = CronExpression::factory($this->getRrule());
         $result = [];
 
-        if ($to->getTimestamp() < $this->getStartDate()->getTimestamp()) {
-            return $result;
-        }
-
         if ($from->getTimestamp() < $this->getStartDate()->getTimestamp()) {
             $from = clone $this->getStartDate();
         }
 
-        $firstIteration = true;
+        if (($to->getTimestamp() + (int) $inc) > $this->getStartDate()->getTimestamp()) {
+            $result = $this->getDates($rRule, $from, $to, $inc);
+        }
 
+        return $result;
+    }
+
+    /**
+     * @param CronExpression $rRule
+     * @param DateTimeInterface $from
+     * @param DateTimeInterface $to
+     * @param $inc
+     * @return DateTimeInterface[]
+     */
+    private function getDates(CronExpression $rRule, DateTimeInterface $from, DateTimeInterface $to, $inc)
+    {
+        $firstIteration = true;
+        $result = [];
         do {
             $nextRunDate = $rRule->getNextRunDate($from, 0, $firstIteration && $inc);
             if ($nextRunDate->getTimestamp() < ($to->getTimestamp() + (int) $inc) && $from->getTimestamp() <= $nextRunDate->getTimestamp()) {
@@ -43,7 +55,6 @@ class CronRule extends AbstractRule
             $firstIteration = false;
             $from = $nextRunDate;
         } while ($nextRunDate->getTimestamp() < ($to->getTimestamp() + (int) $inc));
-
         return $result;
     }
 }
