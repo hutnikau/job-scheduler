@@ -3,6 +3,7 @@
 namespace Scheduler\Job;
 
 use DateTimeInterface;
+use DateTime;
 use Cron\CronExpression;
 
 /**
@@ -47,6 +48,8 @@ class CronRule extends AbstractRule
     {
         $firstIteration = true;
         $result = [];
+        //make sure that $from is DateTime instance
+        $from = new DateTime('@'.$from->getTimestamp());
         do {
             $nextRunDate = $rRule->getNextRunDate($from, 0, $firstIteration && $inc);
             if ($nextRunDate->getTimestamp() < ($to->getTimestamp() + (int) $inc) && $from->getTimestamp() <= $nextRunDate->getTimestamp()) {
