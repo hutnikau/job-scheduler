@@ -26,6 +26,41 @@ $ composer require hutnikau/job-scheduler
 
 ## Usage
 
+### Create recurrence rule
+
+iCalendar syntax
+```php
+$executionTime = new \DateTime('2017-12-12 20:00:00');
+//run monthly, at 20:00:00, 5 times
+$rule          = new \Scheduler\Job\RRule('FREQ=MONTHLY;COUNT=5', $executionTime);
+```
+
+Cron syntax:
+```php
+$executionTime = new \DateTime('2017-12-12 20:00:00');
+//run monthly, at 20:00:00
+$rule          = new \Scheduler\Job\CronRule('0 20 * 1 *', $executionTime);
+```
+
+### Get the recurrences between dates
+
+```php
+$dt = new DateTime('2017-12-28T21:00:00');
+$dtPlusFiveMinutes = new DateTime('2017-12-28T21:05:00');
+$rRule = new CronRule('* * * * *', $dt); //minutely
+$rRule->getRecurrences($dt, $dtPlusFiveMinutes); //array with six DateTime instances from '2017-12-28T21:00:00' to '2017-12-28T21:05:00'
+```
+
+### Get the next recurrence after given date
+
+```php
+$dt = new DateTime('2017-12-28T21:00:00');
+$rRule = new CronRule('* * * * *', $dt); //minutely
+$rRule->getNextRecurrence($dt); //DateTime instance ('2017-12-28T21:00:00')
+//not including given date
+$rRule->getNextRecurrence($dt, false); //DateTime instance ('2017-12-28T21:01:00')
+```
+
 ### Create a job
 Job constructor have the following signature:
 `\Scheduler\Job\Job::__construct(RRule $rRule, callable $callable);`
