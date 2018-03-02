@@ -40,6 +40,27 @@ class CronRule extends AbstractRule
     }
 
     /**
+     * @param DateTimeInterface $from
+     * @param boolean $inc including $from and $to dates
+     * @return DateTimeInterface|null date of the next recurrence or null of no more recurrences scheduled.
+     */
+    public function getNextRecurrence(DateTimeInterface $from, $inc = true)
+    {
+        if ($from->getTimestamp() < $this->getStartDate()->getTimestamp()) {
+            $from = clone $this->getStartDate();
+        }
+        //make sure that $from is DateTime instance
+        $from = new DateTime('@'.$from->getTimestamp());
+        if ($from->format('s') !== '00') {
+            $from->setTime($from->format('H'), $from->format('i') + 1, 0);
+            $inc = true;
+        }
+
+        $rRule = CronExpression::factory($this->getRrule());
+        return $rRule->getNextRunDate($from, 0, $inc);
+    }
+
+    /**
      * @param CronExpression $rRule
      * @param DateTime $from
      * @param DateTimeInterface $to

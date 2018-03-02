@@ -74,4 +74,34 @@ class CronRuleTest extends TestCase
         $this->assertEquals(4, count($rRule->getRecurrences($dt, DateTime::createFromFormat('U', $dt->getTimestamp()+(60*4)), true)));
         $this->assertEquals(4, count($rRule->getRecurrences($dt, DateTime::createFromFormat('U', $dt->getTimestamp()+(60*4)), false)));
     }
+
+    public function testGetNextRecurrence()
+    {
+        $dt = new DateTime('2017-12-28T21:00:00');
+        $rRule = new CronRule('* * * * *', $dt); //minutely
+
+        $this->assertEquals($dt->getTimestamp(), $rRule->getNextRecurrence($dt)->getTimestamp());
+        $this->assertEquals($dt->getTimestamp()+60, $rRule->getNextRecurrence($dt, false)->getTimestamp());
+
+        $dtPlusOneSec = new DateTime('2017-12-28T21:00:01');
+
+        $this->assertEquals($dt->getTimestamp()+60, $rRule->getNextRecurrence($dtPlusOneSec)->getTimestamp());
+        $this->assertEquals($dt->getTimestamp()+60, $rRule->getNextRecurrence($dtPlusOneSec, false)->getTimestamp());
+
+        $dtPlusTwoSec = new DateTime('2017-12-28T21:00:02');
+        $rRule = new CronRule('* * * * *', $dtPlusOneSec); //minutely
+        $this->assertEquals($dt->getTimestamp()+60, $rRule->getNextRecurrence($dt)->getTimestamp());
+        $this->assertEquals($dt->getTimestamp()+60, $rRule->getNextRecurrence($dtPlusOneSec)->getTimestamp());
+        $this->assertEquals($dt->getTimestamp()+60, $rRule->getNextRecurrence($dtPlusTwoSec)->getTimestamp());
+
+        $this->assertEquals(
+            $dt->getTimestamp()+120,
+            $rRule->getNextRecurrence(new DateTime('@'.($dt->getTimestamp()+120)))->getTimestamp()
+        );
+
+        $this->assertEquals(
+            $dt->getTimestamp()+180,
+            $rRule->getNextRecurrence(new DateTime('@'.($dt->getTimestamp()+121)))->getTimestamp()
+        );
+    }
 }
