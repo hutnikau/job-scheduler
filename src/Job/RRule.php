@@ -6,6 +6,7 @@ use DateTimeInterface;
 use Recurr\Rule as RecurrRule;
 use Recurr\Recurrence;
 use Recurr\Transformer\ArrayTransformer;
+use Recurr\Transformer\Constraint\AfterConstraint;
 use Recurr\Transformer\Constraint\BetweenConstraint;
 
 /**
@@ -33,6 +34,27 @@ class RRule extends AbstractRule
         /** @var Recurrence $recurrence */
         foreach ($recurrenceCollection as $recurrence) {
             $result[] = $recurrence->getStart();
+        }
+        return $result;
+    }
+
+    /**
+     * @param DateTimeInterface $from
+     * @param boolean $inc including $from and $to dates
+     * @return DateTimeInterface|null date of the next recurrence or null of no more recurrences scheduled.
+     * @throws
+     */
+    public function getNextRecurrence(DateTimeInterface $from, $inc = true)
+    {
+        $rRule = new RecurrRule($this->getRrule(), $this->getStartDate());
+        $rRuleTransformer = new ArrayTransformer();
+        $constraint = new AfterConstraint($from, $inc);
+        $recurrenceCollection = $rRuleTransformer->transform($rRule, $constraint);
+        $result = null;
+        /** @var Recurrence $recurrence */
+        foreach ($recurrenceCollection as $recurrence) {
+            $result = $recurrence->getStart();
+            break;
         }
         return $result;
     }

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0 - 2018-03-02
+
+### Added
+- RRule::getNextRecurrence(DateTimeInterface $from, $inc = true) method to be able to get time of the next recurrence after given date. 
+
 ## 0.3.0 - 2018-02-15
 
 ### Added
