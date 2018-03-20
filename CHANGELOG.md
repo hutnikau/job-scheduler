@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.1 - 2018-03-20
+
+### Changed
+- Removed redundant dependency from composer.json 
+ 
 ## 0.4.0 - 2018-03-02
 
 ### Added
