@@ -40,7 +40,7 @@ abstract class AbstractWorker implements WorkerInterface
      */
     public function run($startTime, $interval)
     {
-        $this->init([$startTime, $interval]);
+        $this->init($startTime, $interval);
         $jobRunner = $this->getJobRunner();
 
         $from = clone($this->from);
@@ -122,19 +122,20 @@ abstract class AbstractWorker implements WorkerInterface
     }
 
     /**
-     * @param array $params
+     * @param integer $startTime
+     * @param string $interval
      * @throws
      */
-    private function init($params = [])
+    private function init($startTime, $interval)
     {
-        if (!isset($params[0]) || !is_numeric($params[0])) {
+        if (!is_numeric($startTime)) {
             throw new SchedulerException('Start time parameter must be numeric');
         }
-        $this->from = new DateTime('@' . $params[0], new \DateTimeZone('UTC'));
+        $this->from = new DateTime('@' . $startTime, new \DateTimeZone('UTC'));
 
         $this->interval = new \DateInterval(self::DEFAULT_ITERATION_INTERVAL);
-        if (isset($params[1])) {
-            $this->interval = new \DateInterval($params[1]);
+        if ($interval !== null) {
+            $this->interval = new \DateInterval($interval);
         }
 
         $this->registerSigHandlers();
