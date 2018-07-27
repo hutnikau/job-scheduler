@@ -44,11 +44,13 @@ abstract class AbstractWorker implements WorkerInterface
         $jobRunner = $this->getJobRunner();
 
         $from = clone($this->from);
+        $oneSecondInterval = new \DateInterval('PT1S');
 
         while ($this->isRunning()) {
-            $to = new DateTime('now', new \DateTimeZone('UTC'));
+            $to = DateTime::createFromFormat('U', time(), new \DateTimeZone('UTC'));
             $jobRunner->run($this->getScheduler(), $from, $to, true);
             $from = clone($to);
+            $from->add($oneSecondInterval);
             sleep($this->getSeconds($this->interval));
             $this->iteration++;
         }

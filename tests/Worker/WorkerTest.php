@@ -25,7 +25,7 @@ class WorkerTest extends TestCase
         $this->reports = new \stdClass();
         $this->reports->arr = [];
         $worker = new Worker($this->getJobRunner(), $this->getScheduler(2));
-        $worker->setMaxIterations(2);
+        $worker->setMaxIterations(3);
         $worker->run($time, 'PT1S');
         $this->assertEquals(2, count($this->reports->arr));
         $this->assertFalse($worker->isRunning());

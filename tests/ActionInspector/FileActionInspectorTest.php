@@ -21,12 +21,15 @@ class FileActionInspectorTest extends TestCase
         $job = new Job($this->getRRule(), function () {
             return 'report';
         });
+        $filename = __DIR__.DIRECTORY_SEPARATOR.'actions.log';
         $action = new CallableAction($job, new \DateTime('2018-06-12 20:00:00'));
         $action2 = new CallableAction($job, new \DateTime('2018-06-12 20:01:00'));
         $action3 = new CallableAction($job, new \DateTime('2018-06-12 20:02:00'));
 
-        unlink(__DIR__.DIRECTORY_SEPARATOR.'actions.log');
-        $actionLog = new FileActionInspector(__DIR__.DIRECTORY_SEPARATOR.'actions.log');
+        if (file_exists($filename)) {
+            unlink($filename);
+        }
+        $actionLog = new FileActionInspector($filename);
 
         $this->assertTrue($actionLog->update($action));
         $this->assertFalse($actionLog->update($action));
