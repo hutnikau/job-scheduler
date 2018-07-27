@@ -2,8 +2,10 @@
 
 namespace Scheduler\Action;
 
+use Scheduler\Exception\SchedulerException;
 use Scheduler\Job\JobInterface;
 use \DateTimeInterface;
+use SuperClosure\Serializer;
 
 /**
  * Class CallableTask
@@ -13,18 +15,27 @@ use \DateTimeInterface;
 class CallableAction implements ActionInterface
 {
 
-    /** @var JobInterface  */
+    /** @var JobInterface */
     private $job;
 
-    /** @var DateTimeInterface  */
+    /** @var DateTimeInterface */
     private $time;
+
+    /** @var integer */
+    private $state;
+
+    /** @var mixed */
+    private $report;
 
     /**
      * @return mixed|void
      */
     public function __invoke()
     {
-        return call_user_func($this->getJob()->getCallable());
+        $this->state = self::STATE_IN_PROGRESS;
+        $this->report = call_user_func($this->getJob()->getCallable(), $this);
+        $this->state = self::STATE_FINISHED;
+        return $this->report;
     }
 
     /**
@@ -34,6 +45,7 @@ class CallableAction implements ActionInterface
      */
     public function __construct(JobInterface $job, DateTimeInterface $time)
     {
+        $this->state = self::STATE_INITIAL;
         $this->job = $job;
         $this->time = $time;
     }
@@ -52,5 +64,63 @@ class CallableAction implements ActionInterface
     public function getJob()
     {
         return $this->job;
+    }
+
+    /**
+     * @return mixed|void
+     */
+    public function getId()
+    {
+        return $this->getTime()->getTimestamp().md5(implode('_', [
+            $this->getTime()->getTimestamp(),
+            $this->getJob()->getRRule()->getStartDate()->getTimestamp(),
+            $this->getJob()->getRRule()->getRrule(),
+            $this->hashCallable($this->getJob()->getCallable())
+        ]));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getState()
+    {
+        return $this->state;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getReport()
+    {
+        if ($this->state !== self::STATE_FINISHED) {
+            throw new SchedulerException('Attempt to get report of not finished action');
+        }
+        return $this->report;
+    }
+
+    /**
+     * Get unique hash from callable
+     * @param $callable
+     * @return string
+     */
+    private function hashCallable($callable)
+    {
+        $result = '';
+        if (is_string($callable)) {
+            $result = $callable;
+        } else if (is_array($callable)) {
+            if (is_object($callable[0])) {
+                $result = get_class(array_shift($callable));
+            } else {
+                $result = serialize(array_shift($callable));
+            }
+            $result .= serialize($callable);
+        } else if (is_object($callable) && $callable instanceof \Closure) {
+            $serializer = new Serializer();
+            return $serializer->serialize($callable);
+        } else if (is_object($callable)) {
+            $result = serialize($callable);
+        }
+        return md5($result);
     }
 }

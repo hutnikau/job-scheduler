@@ -2,6 +2,7 @@
 
 namespace SchedulerTests\Action;
 
+use Scheduler\Action\ActionInterface;
 use Scheduler\Action\CallableAction;
 use PHPUnit\Framework\TestCase;
 use Scheduler\Job\Job;
@@ -53,6 +54,60 @@ class CallableActionTest extends TestCase
         $this->assertTrue($action());
     }
 
+    public function testGetId()
+    {
+        $time = new \DateTime('2013-06-12 20:00:00');
+        $rule = new RRule('FREQ=MINUTELY;COUNT=5', $time);
+        $jobs = [
+            new Job($rule, function () {}),
+            new Job($rule, '\SchedulerTests\Action\my_callback_function'),
+            new Job($rule, [new ActionClass(), 'myCallbackMethod']),
+            new Job($rule, ['\SchedulerTests\Action\ActionClass', 'myCallbackMethod']),
+            new Job($rule, new ActionClass()),
+        ];
+        $ids = [];
+        foreach ($jobs as $job) {
+            $action = new CallableAction($job, $time);
+            $ids[] = $action->getId();
+        }
+        $this->assertEquals(count($jobs), count(array_unique($ids)));
+    }
+
+    public function testGetState()
+    {
+        $job = new Job($this->getRRule(), function ($action) {
+            return $action->getState();
+        });
+        $action = new CallableAction($job, new \DateTime('2018-06-12 20:00:00'));
+
+        $this->assertEquals(ActionInterface::STATE_INITIAL, $action->getState());
+        $stateDuringExecution = $action();
+        $this->assertEquals(ActionInterface::STATE_IN_PROGRESS, $stateDuringExecution);
+        $this->assertEquals(ActionInterface::STATE_FINISHED, $action->getState());
+    }
+
+    public function testGetReport()
+    {
+        $job = new Job($this->getRRule(), function ($action) {
+            return 'foo';
+        });
+        $action = new CallableAction($job, new \DateTime('2018-06-12 20:00:00'));
+        $action();
+        $this->assertEquals('foo', $action->getReport());
+    }
+
+    /**
+     * @expectedException Scheduler\Exception\SchedulerException
+     */
+    public function testGetReportException()
+    {
+        $job = new Job($this->getRRule(), function ($action) {
+            return $action->getState();
+        });
+        $action = new CallableAction($job, new \DateTime('2018-06-12 20:00:00'));
+        $action->getReport();
+    }
+
     /**
      * @return RRule
      */
@@ -61,5 +116,9 @@ class CallableActionTest extends TestCase
         $startDate = new \DateTime('2013-06-12 20:00:00');
         return new RRule('FREQ=MONTHLY;COUNT=5', $startDate);
     }
-
+}
+function my_callback_function() {}
+class ActionClass {
+    static function myCallbackMethod() {}
+    public function __invoke() {}
 }
