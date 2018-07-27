@@ -139,6 +139,43 @@ $reports   = $jobRunner->run($scheduler, $from, $to, true);
 
 `$jobRunner->run(...)` returns an array of reports (\Scheduler\Action\Report)
 
+### Workers
+
+Worker is supposed to be run continuously and check with defined period if there are jobs to be executed.
+
+```php
+$jobRunner = new \Scheduler\JobRunner\JobRunner();
+$scheduler = new \Scheduler\Scheduler([
+    $job,
+    //more jobs here
+]);
+$worker = new \Scheduler\Worker\Worker($jobRunner, $scheduler);
+$worker->setMaxIterations(2);
+$worker->run(time(), 'PT1M');
+```
+
+Worker above will make two iterations (checks if there is a job to execute) with an interval of one minute.
+Default amount of iterations is 1000.
+
+### Action inspectors
+
+In order to be able to run two or more workers on different servers or to avoid execution of one job twice action inspectors may be used:
+
+```php
+$actionInspector = new \Scheduler\ActionInspector\FileActionInspector('pathToFile');
+$jobRunner       = new \Scheduler\JobRunner\JobRunner($actionInspector);
+$from            = new \DateTime('2017-12-12 20:00:00');
+$to              = new \DateTime('2017-12-12 20:10:00');
+$reports         = $jobRunner->run($scheduler, $from, $to, true);
+
+//call of `run` action with the same parameters will not execute any jobs because they already logged by inspecor as finished
+//$reports array is empty
+$reports         = $jobRunner->run($scheduler, $from, $to, true);
+```
+
+NOTE: Currently there is only File implementation of action inspector (which stores finished and in progress actions in the file).
+
+
 ### Reports
 
 `\Scheduler\Action\Report` class synopsis: 
@@ -160,7 +197,7 @@ In case if during execution an exception has been thrown then this exception wil
 ## Warnings
 
 1. Be careful with timezones. Make sure that you create `\DateTime` instances with correct timezone.
-2. Accuracy of scheduler up to seconds. You must be accurate with `$from`, `$to` parameters passed to the runner to not miss an action or not launch an action twice.   
+2. Accuracy of scheduler up to seconds. You must be accurate with `$from`, `$to` parameters passed to the runner to not miss an action or not launch an action twice (alternatively use action inspectors).   
 3. Use `\Scheduler\Job\CronRule` implementation in case if number of occurrences is not limited. 
 4. `\Scheduler\Job\RRule` implementation is more flexible but in case of large or unlimited number of repeats there may be performance issues. By default limit of `\Scheduler\Job\RRule` implementation is 732 repeats. More information: https://github.com/simshaun/recurr
 
