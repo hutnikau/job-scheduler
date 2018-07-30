@@ -68,7 +68,10 @@ class FileActionInspector extends AbstractActionInspector
         return $result;
     }
 
-    function __destruct()
+    /**
+     * Close an open file pointer when class instance destructs.
+     */
+    public function __destruct()
     {
         fclose($this->fh);
     }

@@ -47,7 +47,9 @@ abstract class AbstractWorker implements WorkerInterface
         $oneSecondInterval = new \DateInterval('PT1S');
 
         while ($this->isRunning()) {
-            $to = DateTime::createFromFormat('U', time(), new \DateTimeZone('UTC'));
+            $to = new DateTime();
+            $to->setTimestamp(time());
+            $to->setTimezone(new \DateTimeZone('UTC'));
             $jobRunner->run($this->getScheduler(), $from, $to, true);
             $from = clone($to);
             $from->add($oneSecondInterval);
@@ -131,7 +133,9 @@ abstract class AbstractWorker implements WorkerInterface
         if (!is_numeric($startTime)) {
             throw new SchedulerException('Start time parameter must be numeric');
         }
-        $this->from = new DateTime('@' . $startTime, new \DateTimeZone('UTC'));
+        $this->from = new DateTime();
+        $this->from->setTimestamp($startTime);
+        $this->from->setTimezone(new \DateTimeZone('UTC'));
 
         $this->interval = new \DateInterval(self::DEFAULT_ITERATION_INTERVAL);
         if ($interval !== null) {

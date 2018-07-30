@@ -26,11 +26,8 @@ class RRule extends AbstractRule
      */
     public function getRecurrences(DateTimeInterface $from, DateTimeInterface $to, $inc = true)
     {
-        $rRule = new RecurrRule($this->getRrule(), $this->getStartDate());
-        $rRuleTransformer = new ArrayTransformer();
-        $constraint = new BetweenConstraint($from, $to, $inc);
-        $recurrenceCollection = $rRuleTransformer->transform($rRule, $constraint);
         $result = [];
+        $recurrenceCollection = $this->getCollection(new BetweenConstraint($from, $to, $inc));
         /** @var Recurrence $recurrence */
         foreach ($recurrenceCollection as $recurrence) {
             $result[] = $recurrence->getStart();
@@ -46,16 +43,28 @@ class RRule extends AbstractRule
      */
     public function getNextRecurrence(DateTimeInterface $from, $inc = true)
     {
-        $rRule = new RecurrRule($this->getRrule(), $this->getStartDate());
-        $rRuleTransformer = new ArrayTransformer();
-        $constraint = new AfterConstraint($from, $inc);
-        $recurrenceCollection = $rRuleTransformer->transform($rRule, $constraint);
         $result = null;
+        $recurrenceCollection = $this->getCollection(new AfterConstraint($from, $inc));
         /** @var Recurrence $recurrence */
         foreach ($recurrenceCollection as $recurrence) {
             $result = $recurrence->getStart();
             break;
         }
         return $result;
+    }
+
+    /**
+     * Get recurrence collection by given constraint
+     *
+     * @param $constraint
+     * @return Recurrence[]|\Recurr\RecurrenceCollection
+     * @throws \Recurr\Exception\InvalidRRule
+     * @throws \Recurr\Exception\InvalidWeekday
+     */
+    private function getCollection($constraint)
+    {
+        $rRule = new RecurrRule($this->getRrule(), $this->getStartDate());
+        $rRuleTransformer = new ArrayTransformer();
+        return $rRuleTransformer->transform($rRule, $constraint);
     }
 }
