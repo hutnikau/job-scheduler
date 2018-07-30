@@ -25,6 +25,11 @@ abstract class AbstractActionInspector implements ActionInspectorInterface
      */
     protected function isStateAllowed(ActionInterface $action, $prevState)
     {
-        return in_array($action->getState(), $this->statesFlow[$prevState]);
+        if ($prevState === null) {
+            $result = true;
+        } else {
+            $result = in_array($action->getState(), $this->statesFlow[$prevState]);
+        }
+        return $result;
     }
 }

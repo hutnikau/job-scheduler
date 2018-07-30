@@ -109,13 +109,10 @@ class CallableAction implements ActionInterface
         if (is_string($callable)) {
             $result = $callable;
         } else if (is_array($callable)) {
-            if (is_object($callable[0])) {
-                $result = get_class(array_shift($callable));
-            } else {
-                $result = serialize(array_shift($callable));
-            }
-            $result .= serialize($callable);
-        } else if (is_object($callable) && $callable instanceof \Closure) {
+            $callableEntity = array_shift($callable);
+            $result = is_object($callableEntity) ? get_class($callableEntity) : serialize($callableEntity);
+            $result .= serialize($callable[0]);
+        } else if ($callable instanceof \Closure) {
             $serializer = new Serializer();
             return $serializer->serialize($callable);
         } else if (is_object($callable)) {

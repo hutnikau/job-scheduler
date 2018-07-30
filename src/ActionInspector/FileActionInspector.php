@@ -39,31 +39,22 @@ class FileActionInspector extends AbstractActionInspector
     public function update(ActionInterface $action)
     {
         flock($this->fh, LOCK_EX);
-        fseek($this->fh, 0);
-        $content = '';
-        $messages = [];
-        while (!feof($this->fh)) {
-            $content .= fgets($this->fh);
-        }
+        $messages = $this->getMessages();
         $actionId = $action->getId();
         $actionState = $action->getState();
-        if ($content) {
-            $messages = json_decode($content, true);
-        }
-        if (!isset($messages[$actionId])) {
-            $messages[$actionId] = ['state' => $actionState];
-            $result = true;
-        } else if ($this->isStateAllowed($action, $messages[$actionId]['state'])){
+        $previousState = isset($messages[$actionId]) ? $messages[$actionId]['state'] : null;
+
+        if ($this->isStateAllowed($action, $previousState)) {
             $messages[$actionId]['state'] = $actionState;
+            $result = true;
             if ($actionState === ActionInterface::STATE_FINISHED) {
                 $messages[$actionId]['report'] = $action->getReport();
             }
-            $result = true;
         } else {
             $result = false;
         }
-        fseek($this->fh, 0);
-        fwrite($this->fh, json_encode($messages));
+
+        $this->save($messages);
         flock($this->fh, LOCK_UN);
         return $result;
     }
@@ -74,5 +65,33 @@ class FileActionInspector extends AbstractActionInspector
     public function __destruct()
     {
         fclose($this->fh);
+    }
+
+    /**
+     * Get action messages from log file
+     * @return array
+     */
+    private function getMessages()
+    {
+        $messages = [];
+        $content = '';
+        fseek($this->fh, 0);
+        while (!feof($this->fh)) {
+            $content .= fgets($this->fh);
+        }
+        if ($content) {
+            $messages = json_decode($content, true);
+        }
+        return $messages;
+    }
+
+    /**
+     * Save action messages to file
+     * @param array $messages
+     */
+    private function save(array $messages)
+    {
+        fseek($this->fh, 0);
+        fwrite($this->fh, json_encode($messages));
     }
 }
