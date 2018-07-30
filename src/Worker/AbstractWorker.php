@@ -148,20 +148,11 @@ abstract class AbstractWorker implements WorkerInterface
      */
     private function registerSigHandlers()
     {
-        if (!function_exists('pcntl_signal')) {
-            //worker ran without pcntl
-            function pcntl_signal() {
-                //do nothing
-            }
-            define('SIGTERM', 15);
-            define('SIGINT', 2);
-            define('SIGQUIT', 3);
-        }
-        if (!function_exists('pcntl_signal_dispatch')) {
-            function pcntl_signal_dispatch() {
-                //do nothing
-            };
-        }
+        if (!function_exists('pcntl_signal')) {function pcntl_signal() {/*do nothing*/}};
+        if (!function_exists('pcntl_signal_dispatch')) {function pcntl_signal_dispatch() {/*do nothing*/}};
+        if (!defined('SIGTERM')) {define('SIGTERM', 15);};
+        if (!defined('SIGINT')) {define('SIGINT', 2);};
+        if (!defined('SIGQUIT')) {define('SIGQUIT', 3);};
 
         declare(ticks = 1);
 
