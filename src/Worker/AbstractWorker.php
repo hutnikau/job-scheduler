@@ -73,7 +73,7 @@ abstract class AbstractWorker implements WorkerInterface
      */
     public function isRunning()
     {
-        pcntl_signal_dispatch();
+        if (function_exists('pcntl_signal_dispatch')) {pcntl_signal_dispatch();};
 
         if ($this->iteration >= $this->getMaxIterations()) {
             $this->shutdown();
@@ -148,17 +148,10 @@ abstract class AbstractWorker implements WorkerInterface
      */
     private function registerSigHandlers()
     {
-        if (!function_exists('pcntl_signal')) {function pcntl_signal() {/*do nothing*/}};
-        if (!function_exists('pcntl_signal_dispatch')) {function pcntl_signal_dispatch() {/*do nothing*/}};
-        if (!defined('SIGTERM')) {define('SIGTERM', 15);};
-        if (!defined('SIGINT')) {define('SIGINT', 2);};
-        if (!defined('SIGQUIT')) {define('SIGQUIT', 3);};
-
         declare(ticks = 1);
-
-        pcntl_signal(SIGTERM, [$this, 'shutdown']);
-        pcntl_signal(SIGINT, [$this, 'shutdown']);
-        pcntl_signal(SIGQUIT, [$this, 'shutdown']);
+        if (function_exists('pcntl_signal')) {pcntl_signal(SIGTERM, [$this, 'shutdown']);}
+        if (function_exists('pcntl_signal')) {pcntl_signal(SIGINT, [$this, 'shutdown']);}
+        if (function_exists('pcntl_signal')) {pcntl_signal(SIGQUIT, [$this, 'shutdown']);}
     }
 
     /**
