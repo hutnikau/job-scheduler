@@ -45,10 +45,8 @@ class RRule extends AbstractRule
     {
         $result = null;
         $recurrenceCollection = $this->getCollection(new AfterConstraint($from, $inc));
-        /** @var Recurrence $recurrence */
-        foreach ($recurrenceCollection as $recurrence) {
-            $result = $recurrence->getStart();
-            break;
+        if ($first = $recurrenceCollection->first()) {
+            $result = $first->getStart();
         }
         return $result;
     }
