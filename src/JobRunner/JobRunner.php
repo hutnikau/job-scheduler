@@ -40,6 +40,7 @@ class JobRunner implements JobRunnerInterface
                     $reports[] = new Report($action, $action());
                 } else if ($this->actionLog->update($action)) {
                     $reports[] = new Report($action, $action());
+                    $this->actionLog->update($action);
                 } else {
                     //action already executed or taken by another worker
                 }

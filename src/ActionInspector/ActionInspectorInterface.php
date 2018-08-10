@@ -16,7 +16,7 @@ interface ActionInspectorInterface
     /**
      * Update action state. If action in the same state is already exists in the log
      * or transaction to given state is not allowed (for example back from finished to in progress)
-     * then method returns `false` what means that action has been already taken by another worker.
+     * then method returns `false` what means that action has been already taken or finished by another worker.
      *
      * Allowed states flow:
      * initial -> in progress -> finished (see ActionInterface state constants)

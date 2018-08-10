@@ -45,19 +45,19 @@ abstract class AbstractWorker implements WorkerInterface
 
         $from = clone($this->from);
         $oneSecondInterval = new \DateInterval('PT1S');
-
+        $reports = [];
         while ($this->isRunning()) {
             $to = new DateTime();
             $to->setTimestamp(time());
             $to->setTimezone(new \DateTimeZone('UTC'));
-            $jobRunner->run($this->getScheduler(), $from, $to, true);
+            $reports = $jobRunner->run($this->getScheduler(), $from, $to, true);
             $from = clone($to);
             $from->add($oneSecondInterval);
             sleep($this->getSeconds($this->interval));
             $this->iteration++;
         }
 
-        return 'Shut down scheduler worker';
+        return $reports;
     }
 
     /**

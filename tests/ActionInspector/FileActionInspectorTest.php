@@ -11,7 +11,7 @@ use Scheduler\Job\RRule;
 
 /**
  * Class FileActionInspectorTest
- * @package SchedulerTests\ActionLog
+ * @package SchedulerTests\ActionInspector
  * @author Aleh Hutnikau, <goodnickoff@gmail.com>
  */
 class FileActionInspectorTest extends TestCase

@@ -19,7 +19,7 @@ class FileActionInspector extends AbstractActionInspector
     private $fh;
 
     /**
-     * FileActionLog constructor.
+     * FileActionInspector constructor.
      * @param $filePath
      */
     public function __construct($filePath)

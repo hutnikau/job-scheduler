@@ -36,15 +36,15 @@ class WorkerTest extends TestCase
         $samplesDir = __DIR__ . DIRECTORY_SEPARATOR . 'Samples' . DIRECTORY_SEPARATOR;
         $pipe = [];
         $start = time();
-        $maxIterations = 1;
         $interval = 'PT1S';
-        $threads = 3;
+        $threads = 20;
         require_once $samplesDir . 'jobs.php';
         /** @var $jobs */
         file_put_contents($samplesDir . 'report', '');
+        file_put_contents($samplesDir . 'actions.log', '');
 
         for ($i = 0; $i < $threads; $i++) {
-            $pipe[$i] = popen('php ' . $samplesDir . 'AsyncWorker.php ' . $start . ' ' . $maxIterations . ' ' . $interval, 'w');
+            $pipe[$i] = popen('php ' . $samplesDir . 'AsyncWorker.php ' . $start . ' ' . $i . ' ' . $interval, 'w');
         }
 
         for ($i = 0; $i < $threads; $i++) {
@@ -53,7 +53,7 @@ class WorkerTest extends TestCase
 
         $performedActionIds = file($samplesDir . 'report');
         $this->assertEquals(count(array_unique($performedActionIds)), count($performedActionIds));
-        $this->assertEquals($maxIterations * count($jobs), count($performedActionIds));
+        $this->assertEquals(count($jobs), count($performedActionIds));
     }
 
     /**

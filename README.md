@@ -173,7 +173,15 @@ $reports         = $jobRunner->run($scheduler, $from, $to, true);
 $reports         = $jobRunner->run($scheduler, $from, $to, true);
 ```
 
-NOTE: Currently there is only File implementation of action inspector (which stores finished and in progress actions in the file).
+Currently there is also Rds implementation so all the performed actions data can be stored in SQL storage.
+Constructor of expects to receive `\Doctrine\DBAL\Connection` instance:
+```php
+    $actionInspector = new \Scheduler\ActionInspector\RdsActionInspector($connection);
+```
+> Note: Make sure you prepared the database (created the table) using initDb static method:
+```php
+    \Scheduler\ActionInspector\RdsActionInspector::initDb($connection);
+```
 
 
 ### Reports
