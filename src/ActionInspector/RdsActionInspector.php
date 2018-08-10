@@ -72,7 +72,7 @@ class RdsActionInspector extends AbstractActionInspector
      */
     private function getSelectQuery($actionId)
     {
-        return $this->getConnection()->createQueryBuilder()
+        return $this->getQueryBuilder()
             ->select(implode(',', [self::COLUMN_REPORT, self::COLUMN_STATE, self::COLUMN_ID]))
             ->from(self::TABLE_NAME)
             ->andWhere(self::COLUMN_ID . ' = ?')
@@ -86,8 +86,7 @@ class RdsActionInspector extends AbstractActionInspector
      */
     private function getUpdateQuery($actionState, $actionId)
     {
-        return $this->getConnection()
-            ->createQueryBuilder()
+        return $this->getQueryBuilder()
             ->update(self::TABLE_NAME)
             ->set(self::COLUMN_STATE, ':state')
             ->where(self::COLUMN_ID . ' = :id')
@@ -101,8 +100,7 @@ class RdsActionInspector extends AbstractActionInspector
      */
     private function getInsertQuery($actionState, $actionId)
     {
-        return $this->getConnection()
-            ->createQueryBuilder()
+        return $this->getQueryBuilder()
             ->insert(self::TABLE_NAME)
             ->values([
                 self::COLUMN_ID => ':id',
@@ -117,6 +115,14 @@ class RdsActionInspector extends AbstractActionInspector
     private function getConnection()
     {
         return $this->connection;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Query\QueryBuilder
+     */
+    private function getQueryBuilder()
+    {
+        return $this->getConnection()->createQueryBuilder();
     }
 
     /**
