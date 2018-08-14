@@ -10,6 +10,7 @@ use Scheduler\Job\CallableAction;
 use Scheduler\Job\RRule;
 use DateTime;
 use Scheduler\JobRunner\JobRunner;
+use Scheduler\ActionInspector\FileActionInspector;
 
 /**
  * Class JobRunnerTest
@@ -25,7 +26,7 @@ class JobRunnerTest extends TestCase
             ->setMethods(['myCallBack'])
             ->getMock();
 
-        $errorCallbackMock->expects($this->once())
+        $errorCallbackMock->expects($this->atLeastOnce())
             ->method('myCallBack')
             ->will($this->returnCallback(function () {
                 throw new \Exception('foo');
@@ -36,17 +37,30 @@ class JobRunnerTest extends TestCase
             $this->getJob($now-3,'FREQ=MONTHLY;COUNT=5', $errorCallbackMock),
             $this->getJob($now),
         ]);
-        $taskRunner = new JobRunner();
-        $reports = $taskRunner->run($scheduler, DateTime::createFromFormat('U', $now-6));
+        $jobRunner = new JobRunner();
+        $reports = $jobRunner->run($scheduler, DateTime::createFromFormat('U', $now-6));
         $this->assertTrue(is_array($reports));
         $this->assertEquals(3, count($reports));
         $this->assertTrue($reports[0] instanceof Report);
         $this->assertTrue($reports[0]->getResult());
         $this->assertTrue($reports[1]->getResult() instanceof \Exception);
         $this->assertTrue($reports[2]->getResult());
+
+        $reports = $jobRunner->run($scheduler, DateTime::createFromFormat('U', $now-6));
+        $this->assertEquals(3, count($reports));
+
+        $actionsLog = new FileActionInspector(__DIR__ . DIRECTORY_SEPARATOR  . 'actions.log');
+        $jobRunner = new JobRunner($actionsLog);
+        $reports = $jobRunner->run($scheduler, DateTime::createFromFormat('U', $now-6));
+        $this->assertEquals(3, count($reports));
+        $reports = $jobRunner->run($scheduler, DateTime::createFromFormat('U', $now-6));
+        $this->assertEquals(0, count($reports));
     }
 
     /**
+     * @param integer $start
+     * @param string $rrule
+     * @param null|callable $callbackMock
      * @return Job
      */
     private function getJob($start, $rrule = 'FREQ=MONTHLY;COUNT=5', $callbackMock = null)
@@ -56,7 +70,7 @@ class JobRunnerTest extends TestCase
                 ->setMethods(['myCallBack'])
                 ->getMock();
 
-            $callbackMock->expects($this->once())
+            $callbackMock->expects($this->atLeastOnce())
                 ->method('myCallBack')
                 ->will($this->returnValue(true));
         }

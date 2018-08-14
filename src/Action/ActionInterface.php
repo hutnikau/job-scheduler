@@ -3,6 +3,7 @@
 namespace Scheduler\Action;
 
 use DateTimeInterface;
+use Scheduler\Exception\SchedulerException;
 use Scheduler\Job\JobInterface;
 
 /**
@@ -11,6 +12,10 @@ use Scheduler\Job\JobInterface;
  */
 interface ActionInterface
 {
+    const STATE_INITIAL = 0;
+    const STATE_IN_PROGRESS = 1;
+    const STATE_FINISHED = 2;
+
     /**
      * @return mixed
      */
@@ -27,4 +32,21 @@ interface ActionInterface
      * @return JobInterface
      */
     public function getJob();
+
+    /**
+     * @return mixed
+     */
+    public function getId();
+
+    /**
+     * @return integer
+     */
+    public function getState();
+
+    /**
+     * Get action report.
+     * @throws SchedulerException in case if action is not in finished state.
+     * @return mixed
+     */
+    public function getReport();
 }
