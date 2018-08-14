@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0 - 2018-08-14
+
+### Changed
+- Added ActionInspector (Rds and File implementations) to track already executed actions or actions which are in progress
+- Added ability to run several workers in parallel
+
 ## 0.4.1 - 2018-03-20
 
 ### Changed
