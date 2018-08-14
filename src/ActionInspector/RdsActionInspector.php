@@ -67,10 +67,18 @@ class RdsActionInspector extends AbstractActionInspector
     }
 
     /**
+     * @return \Doctrine\DBAL\Query\QueryBuilder
+     */
+    protected function getQueryBuilder()
+    {
+        return $this->getConnection()->createQueryBuilder();
+    }
+
+    /**
      * @param $actionId
      * @return \Doctrine\DBAL\Query\QueryBuilder
      */
-    private function getSelectQuery($actionId)
+    protected function getSelectQuery($actionId)
     {
         return $this->getQueryBuilder()
             ->select(implode(',', [self::COLUMN_REPORT, self::COLUMN_STATE, self::COLUMN_ID]))
@@ -84,7 +92,7 @@ class RdsActionInspector extends AbstractActionInspector
      * @param $actionId
      * @return \Doctrine\DBAL\Query\QueryBuilder
      */
-    private function getUpdateQuery($actionState, $actionId)
+    protected function getUpdateQuery($actionState, $actionId)
     {
         return $this->getQueryBuilder()
             ->update(self::TABLE_NAME)
@@ -98,7 +106,7 @@ class RdsActionInspector extends AbstractActionInspector
      * @param $actionId
      * @return \Doctrine\DBAL\Query\QueryBuilder
      */
-    private function getInsertQuery($actionState, $actionId)
+    protected function getInsertQuery($actionState, $actionId)
     {
         return $this->getQueryBuilder()
             ->insert(self::TABLE_NAME)
@@ -115,14 +123,6 @@ class RdsActionInspector extends AbstractActionInspector
     private function getConnection()
     {
         return $this->connection;
-    }
-
-    /**
-     * @return \Doctrine\DBAL\Query\QueryBuilder
-     */
-    private function getQueryBuilder()
-    {
-        return $this->getConnection()->createQueryBuilder();
     }
 
     /**
