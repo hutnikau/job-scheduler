@@ -58,6 +58,9 @@ class RdsActionInspectorTest extends TestCase
         //attempt to return back from finished state to in progress
         $this->assertFalse($actionLog->update($action3));
 
+        $reports = $connection->query('SELECT * FROM ' . RdsActionInspector::TABLE_NAME)->fetchAll(\PDO::FETCH_ASSOC);
+        $this->assertCount(count($reports), array_filter(array_column($reports, RdsActionInspector::COLUMN_CREATED_AT)));
+
         //in case of DBALException (such as index violation) is should return false
         RdsActionInspector::dropDb($connection);
         $this->assertFalse($actionLog->update($action3));
@@ -81,17 +84,14 @@ class RdsActionInspectorTest extends TestCase
         );
 
         $connection = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, new \Doctrine\DBAL\Configuration());
-        try {
-            RdsActionInspector::initDb($connection);
-        } catch (DBALException $e) {
-            //schema is up to date
-        }
-        try {
-            $q = $connection->getDatabasePlatform()->getTruncateTableSql(RdsActionInspector::TABLE_NAME);
-            $connection->executeUpdate($q);
-        } catch (\Doctrine\DBAL\DBALException $e) {
 
+        try {
+            RdsActionInspector::dropDb($connection);
+        } catch (DBALException $e) {
+            //table does not exist
         }
+
+        RdsActionInspector::initDb($connection);
 
         $pipe = [];
         $threads = 100;
