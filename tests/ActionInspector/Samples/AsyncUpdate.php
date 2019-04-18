@@ -25,5 +25,5 @@ foreach ($actions as $action) {
     if ($actionsInspector->update($action)) {
         $action();
         $actionsInspector->update($action);
-    };
+    }
 }

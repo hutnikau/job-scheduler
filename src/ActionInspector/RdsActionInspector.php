@@ -5,6 +5,7 @@ namespace Scheduler\ActionInspector;
 use Scheduler\Action\ActionInterface;
 use Scheduler\Exception\SchedulerException;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Types\Type;
 
 /**
  * Class RdsActionInspector
@@ -17,6 +18,7 @@ class RdsActionInspector extends AbstractActionInspector
     const COLUMN_ID = 'id';
     const COLUMN_REPORT = 'report';
     const COLUMN_STATE = 'state';
+    const COLUMN_CREATED_AT = 'created_at';
 
     /** @var \Doctrine\DBAL\Connection */
     private $connection;
@@ -97,8 +99,13 @@ class RdsActionInspector extends AbstractActionInspector
         return $this->getQueryBuilder()
             ->update(self::TABLE_NAME)
             ->set(self::COLUMN_STATE, ':state')
+            ->set(self::COLUMN_CREATED_AT, ':created_at')
             ->where(self::COLUMN_ID . ' = :id')
-            ->setParameters(['state' => $actionState, 'id' => $actionId]);
+            ->setParameters([
+                self::COLUMN_STATE => $actionState,
+                self::COLUMN_ID => $actionId,
+                self::COLUMN_CREATED_AT => (new \DateTime)->format('Y-m-d H:i:s')
+            ]);
     }
 
     /**
@@ -112,9 +119,14 @@ class RdsActionInspector extends AbstractActionInspector
             ->insert(self::TABLE_NAME)
             ->values([
                 self::COLUMN_ID => ':id',
-                self::COLUMN_STATE => ':state'
+                self::COLUMN_STATE => ':state',
+                self::COLUMN_CREATED_AT => ':created_at',
             ])
-            ->setParameters(['id' => $actionId, 'state' => $actionState]);
+            ->setParameters([
+                self::COLUMN_ID => $actionId,
+                self::COLUMN_STATE => $actionState,
+                self::COLUMN_CREATED_AT => (new \DateTime)->format('Y-m-d H:i:s'),
+            ]);
     }
 
     /**
@@ -135,9 +147,10 @@ class RdsActionInspector extends AbstractActionInspector
         $schema = $schemaManager->createSchema();
         $fromSchema = clone $schema;
         $table = $schema->createTable(self::TABLE_NAME);
-        $table->addColumn(static::COLUMN_ID, 'string', ['length' => 255, 'notnull' => true]);
-        $table->addColumn(static::COLUMN_STATE, 'string', ['length' => 255, 'notnull' => true]);
-        $table->addColumn(static::COLUMN_REPORT, 'text', ['notnull' => false]);
+        $table->addColumn(static::COLUMN_ID, TYPE::STRING, ['length' => 255, 'notnull' => true]);
+        $table->addColumn(static::COLUMN_STATE, TYPE::STRING, ['length' => 255, 'notnull' => true]);
+        $table->addColumn(static::COLUMN_REPORT, TYPE::TEXT, ['notnull' => false]);
+        $table->addColumn(static::COLUMN_CREATED_AT, TYPE::DATETIME, ['notnull' => true]);
         $table->setPrimaryKey([static::COLUMN_ID]);
         $table->addIndex([static::COLUMN_ID], 'IDX_' . static::TABLE_NAME . '_' . static::COLUMN_ID);
         $queries = $fromSchema->getMigrateToSql($schema, $connection->getDatabasePlatform());
